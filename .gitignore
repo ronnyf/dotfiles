@@ -1,7 +1,6 @@
 *
 !.config/
-!.config/fd/
-!.config/iTerm2/
+!.config/**
 
 !.vim/
 !.vim/**
@@ -13,7 +12,4 @@
 !.vimrc
 !.zshrc
 !.xccolortheme
-
-!.config/fd/**
-!.config/iTerm2/**
 
