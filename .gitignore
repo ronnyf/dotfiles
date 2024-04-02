@@ -1,16 +1,1 @@
-*
-!.config/
-!.config/**
-
-!.vim/
-!.vim/**
-
-!.oh-my-zsh/
-!.oh-my-zsh/**
-
-!.gitignore
-!.gitmodules
-!.vimrc
-!.zshrc
-!.xccolortheme
-
+.DS_Store
