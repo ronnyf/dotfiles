@@ -4,7 +4,7 @@ export NODE_PATH=/usr/local/opt/node@20
 export PATH=$HOME/.local/bin:$HOME/.local/share:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="$HOME/.dotfiles/.oh-my-zsh"
+export ZSH="$HOME/.dotfiles/.config/zsh/oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -66,7 +66,7 @@ ZSH_THEME="robbyrussell"
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+ZSH_CUSTOM=$HOME/.dotfiles/.config/zsh/custom
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
