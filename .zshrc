@@ -1,7 +1,9 @@
 # If you come from bash you might have to change your $PATH.
+export HOMEBREW_PATH=$(brew --prefix)
 export PYTHON_PATH=$(pyenv root)/shims
-export NODE_PATH=/opt/homebrew/opt/node@20
-export PATH=$HOME/.local/bin:$HOME/.local/share:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
+export NODE_PATH=$HOMEBREW_PATH/node@20
+export TMUXIFIER_PATH=$HOME/.tmux/plugins/tmuxifier
+export PATH=$HOME/.local/bin:$HOME/.local/share:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$TMUXIFIER_PATH/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.dotfiles/.config/zsh/oh-my-zsh"
@@ -110,4 +112,4 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 eval "$(zoxide init zsh)"
-
+eval "$(tmuxifier init -)"
