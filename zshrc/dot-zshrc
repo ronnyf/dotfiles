@@ -1,12 +1,12 @@
 # If you come from bash you might have to change your $PATH.
 export HOMEBREW_PATH=$(brew --prefix)
 export PYTHON_PATH=$(pyenv root)/shims
-export NODE_PATH=$HOMEBREW_PATH/node@20
+export NODE_PATH=$HOMEBREW_PATH/Cellar/node@20
 export TMUXIFIER_LAYOUT_PATH=$HOME/.config/tmux/tmuxifier/layouts
 export PATH=$HOME/.local/bin:$HOME/.local/share:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="$HOME/.dotfiles/.config/zsh/oh-my-zsh"
+export ZSH="$HOME/.config/oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -68,7 +68,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=$HOME/.dotfiles/.config/zsh/custom
+ZSH_CUSTOM=$HOME/.config/zsh_custom
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -109,7 +109,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+[[ ! -f ~/.zshrc.alias ]] || source ~/.zshrc.alias
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 eval "$(zoxide init zsh)"
-eval "$(.tmux/plugins/tmuxifier/bin/tmuxifier init -)"
+#eval "$(~/.tmux/plugins/tmuxifier/bin/tmuxifier init -)"
