@@ -10,6 +10,7 @@
 [submodule "nvim"]
 	path = nvim
 	url = https://github.com/ronnyf/NvChad.git
+  branch = current
 [submodule "omz/oh-my-zsh"]
 	path = omz/oh-my-zsh
 	url = https://github.com/ohmyzsh/ohmyzsh.git
