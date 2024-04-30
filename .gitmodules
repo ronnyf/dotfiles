@@ -10,9 +10,6 @@
 [submodule "omz_themes/powerlevel10k"]
 	path = omz_themes/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
-[submodule "tmux/tmuxifier"]
-	path = tmux/tmuxifier
-	url = https://github.com/jimeh/tmuxifier.git
 [submodule "tmux/plugins/tpm"]
 	path = tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
