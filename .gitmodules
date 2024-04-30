@@ -1,9 +1,6 @@
 [submodule ".config/tmux/tpm"]
 	path = .config/tmux/tpm
 	url = https://github.com/tmux-plugins/tpm.git
-[submodule ".config/tmux/tmuxifier"]
-	path = .config/tmux/tmuxifier
-	url = https://github.com/jimeh/tmuxifier.git
 [submodule ".config/xcode/themes/catppuccin"]
 	path = .config/xcode/themes/catppuccin
 	url = https://github.com/catppuccin/xcode.git
@@ -23,3 +20,6 @@
 [submodule "omz_themes/powerlevel10k"]
 	path = omz_themes/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
+[submodule "tmux/tmuxifier"]
+	path = tmux/tmuxifier
+	url = https://github.com/jimeh/tmuxifier.git
