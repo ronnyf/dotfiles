@@ -23,3 +23,6 @@
 [submodule "tmux/tmuxifier"]
 	path = tmux/tmuxifier
 	url = https://github.com/jimeh/tmuxifier.git
+[submodule "tmux/plugins/tpm"]
+	path = tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm
