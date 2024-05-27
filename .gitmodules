@@ -4,15 +4,19 @@
 [submodule "omz_plugins/zsh-autosuggestions"]
 	path = omz_plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
+    tag = v0.7.0
 [submodule "omz_plugins/zsh-syntax-highlighting"]
 	path = omz_plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+    tag = 0.8.0
 [submodule "omz_themes/powerlevel10k"]
 	path = omz_themes/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
+    tag = v1.20.0
 [submodule "tmux/plugins/tpm"]
 	path = tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
+    tag = v3.1.0
 [submodule "nvim/nvim"]
 	path = nvim/nvim
 	url = git@github.com:ronnyf/NvChad.git
