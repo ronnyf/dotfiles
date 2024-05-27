@@ -15,4 +15,5 @@
 	url = https://github.com/tmux-plugins/tpm
 [submodule "nvim/nvim"]
 	path = nvim/nvim
-	url = https://github.com/ronnyf/NvChad.git
+	url = git@github.com:ronnyf/NvChad.git
+    branch = current
