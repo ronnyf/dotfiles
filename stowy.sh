@@ -7,20 +7,21 @@ for entry in "${current}"/*; do
 	target_path="${entry}/${target_file_name}"
 	if [ -e "${target_path}" ]; then
 		package=`basename ${entry}`
-		echo "stowy package ${package} >>> begin"
+		echo "stowy package '${package}' >>> begin"
 
-		target=$(<$target_path)
-		if [ ! -d "${target}" ]; then
-			eval "mkdir -p ${target}"
+        source ${target_path}
+        #echo "got: ${STOWY_TARGET}"
+
+		if [ ! -d "${STOWY_TARGET}" ]; then
+			mkdir_cmd="mkdir -p ${STOWY_TARGET}"
+            eval "${mkdir_cmd}"
 		fi
 
-		stow_target="${target}"
-		cmd="stow -t "${target}" -v ${package} --dotfiles --ignore=^target\.stowy$ --ignore=\.DS_Store"
+		cmd="stow -t "${STOWY_TARGET}" -v ${package} --dotfiles --ignore=^target\.stowy$ --ignore=\.DS_Store"
 		#echo "cmd: ${cmd}"
 		eval "${cmd}"
-		#result=${!cmd}
 
-		echo "stowy package ${package} <<< done" 
+		echo "stowy package '${package}' <<< done" 
 	fi
 done
 
