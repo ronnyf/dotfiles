@@ -1,0 +1,1 @@
+alias idfenv='. $HOME/projects/dev/opensource/esp/esp-idf/export.sh'

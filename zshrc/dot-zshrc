@@ -3,7 +3,7 @@ export HOMEBREW_PATH=$(brew --prefix)
 export PYTHON_PATH=$(pyenv root)/shims
 export NODE_PATH=$HOMEBREW_PATH/Cellar/node@20
 export TMUXIFIER_LAYOUT_PATH=$HOME/.config/tmux/layouts
-export PATH=$HOME/.local/bin:$HOME/.local/share:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
+export PATH=$HOME/.local/bin:$HOME/.local/share:$HOME/.cargo/bin:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.config/oh-my-zsh"
@@ -135,5 +135,5 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --inline-info --preview '
 source <(zoxide init zsh)
 source <(~/.config/tmux/plugins/tmuxifier/bin/tmuxifier init -)
 source <(fzf --zsh)
-
-
+source <(pyenv init -)
+. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
