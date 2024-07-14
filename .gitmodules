@@ -17,6 +17,18 @@
 	path = tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
     tag = v3.1.0
+[submodule "tmux/plugins/tmux"]
+    path = tmux/plugins/tmux
+    url = https://github.com/dracula/tmux
+    tag = v2.3.0
+[submodule "tmux/plugins/tmuxifier"]
+    path = tmux/plugins/tmuxifier
+    url = https://github.com/jimeh/tmuxifier.git
+    tag = v0.13.0
+[submodule "tmux/plugins/vim-tmux-navigator"]
+    path = tmux/plugins/vim-tmux-navigator
+    url = https://github.com/christoomey/vim-tmux-navigator
+    tag = v1.0
 [submodule "nvim/nvim"]
 	path = nvim/nvim
 	url = git@github.com:ronnyf/NvChad.git
