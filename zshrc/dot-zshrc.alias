@@ -1,1 +1,2 @@
 alias idfenv='. $HOME/projects/dev/opensource/esp/esp-idf/export.sh'
+alias matterdev='. $HOME/projects/dev/opensource/esp/esp-matter/export.sh'
