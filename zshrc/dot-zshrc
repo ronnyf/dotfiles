@@ -136,4 +136,5 @@ source <(zoxide init zsh)
 source <(~/.config/tmux/plugins/tmuxifier/bin/tmuxifier init -)
 source <(fzf --zsh)
 source <(pyenv init -)
-. "$HOME/.cargo/env"            # For sh/bash/zsh/ash/dash/pdksh
+# For sh/bash/zsh/ash/dash/pdksh
+source <($HOME/.cargo/env)            

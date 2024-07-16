@@ -1,2 +1,3 @@
 alias idfenv='. $HOME/projects/dev/opensource/esp/esp-idf/export.sh'
-alias matterdev='. $HOME/projects/dev/opensource/esp/esp-matter/export.sh'
+alias matterenv='. $HOME/projects/dev/opensource/esp/esp-matter/export.sh'
+alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
