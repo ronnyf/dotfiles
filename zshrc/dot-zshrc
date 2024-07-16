@@ -1,9 +1,7 @@
 # If you come from bash you might have to change your $PATH.
-export HOMEBREW_PATH=$(brew --prefix)
 export PYTHON_PATH=$(pyenv root)/shims
-export NODE_PATH=$HOMEBREW_PATH/Cellar/node@20
 export TMUXIFIER_LAYOUT_PATH=$HOME/.config/tmux/layouts
-export PATH=$HOME/.local/bin:$HOME/.local/share:$HOME/.cargo/bin:$PYTHON_PATH:/usr/local/bin:$NODE_PATH/bin:$PATH
+export PATH=$HOME/.local/bin:$HOME/.local/share:$HOME/.cargo/bin:$PYTHON_PATH:/usr/local/bin::$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.config/oh-my-zsh"
