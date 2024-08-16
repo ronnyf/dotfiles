@@ -1,3 +1,5 @@
 alias idfenv='. $HOME/projects/dev/opensource/esp/esp-idf/export.sh'
 alias matterenv='. $HOME/projects/dev/opensource/esp/esp-matter/export.sh'
 alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
+alias blobby='aws --endpoint-url https://blob.mr3.simcloud.apple.com --cli-read-timeout 300 --profile blobby'
+
