@@ -1,6 +1,7 @@
 [submodule "omz/oh-my-zsh"]
 	path = omz/oh-my-zsh
 	url = https://github.com/ohmyzsh/ohmyzsh.git
+    branch = master
 [submodule "omz_plugins/zsh-autosuggestions"]
 	path = omz_plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
