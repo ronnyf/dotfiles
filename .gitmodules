@@ -5,7 +5,7 @@
 [submodule "omz_plugins/zsh-autosuggestions"]
 	path = omz_plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
-    tag = v0.7.0
+    tag = v0.7.1
 [submodule "omz_plugins/zsh-syntax-highlighting"]
 	path = omz_plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
@@ -21,15 +21,15 @@
 [submodule "tmux/plugins/tmux"]
     path = tmux/plugins/tmux
     url = https://github.com/dracula/tmux
-    tag = v2.3.0
+    tag = v3.0.0
 [submodule "tmux/plugins/tmuxifier"]
     path = tmux/plugins/tmuxifier
     url = https://github.com/jimeh/tmuxifier.git
-    tag = v0.13.0
+    branch = main
 [submodule "tmux/plugins/vim-tmux-navigator"]
     path = tmux/plugins/vim-tmux-navigator
     url = https://github.com/christoomey/vim-tmux-navigator
-    tag = v1.0
+    branch = master
 [submodule "nvim/nvim"]
 	path = nvim/nvim
 	url = git@github.com:ronnyf/NvChad.git
