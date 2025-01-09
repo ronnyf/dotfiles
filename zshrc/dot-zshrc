@@ -31,6 +31,10 @@ export EDITOR='nvim'
 # Alias stuff
 [[ ! -f ~/.zshrc.alias ]] || source ~/.zshrc.alias
 
+# key bindings
+bindkey "^[[1;3C" forward-word
+bindkey "^[[1;3D" backward-word
+
 EDITOR='nvim'
 HISTSIZE=10000
 HISTFILE=~/.zsh_history
@@ -58,3 +62,14 @@ source <(fzf --zsh)
 source <(pyenv init -)
 # For sh/bash/zsh/ash/dash/pdksh
 source <($HOME/.cargo/env)            
+
+#ESP dev
+if [ -d $HOME/projects/opensource/esp ]; then
+  export ESP_ROOT=$HOME/projects/opensource/esp
+  export IDF_TOOLS_PATH=$ESP_ROOT/tools
+
+  if [ -d $ESP_ROOT/esp-homekit-sdk ]; then
+    export HOMEKIT_PATH=$ESP_ROOT/esp-homekit-sdk
+  fi
+fi
+
