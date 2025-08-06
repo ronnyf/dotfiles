@@ -1,10 +1,22 @@
-alias idfenv='. $HOME/projects/opensource/esp/esp-idf/export.sh'
-alias ib='idf.py build'
-alias ic='idf.py clean'
-alias ibf='idf.py build flash'
-alias ibfm='idf.py build flash monitor'
-alias ifm='idf.py flash monitor'
-alias matterenv='. $HOME/projects/opensource/esp/esp-matter/export.sh'
-alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
-alias blobby='aws --endpoint-url https://blob.mr3.simcloud.apple.com --cli-read-timeout 300 --profile blobby'
-
+if [[ -n "$IAMAT" && "$IAMAT" == "WORK" ]]; then
+  # for pccagent
+  alias dcpccllmcreate='devicecompute session create --private-cloudos --ensemble-size 8 --manifest-train "${PCCTRAIN}" --manifest-version "${PCCTRAIN_VERSION}" -c "{\"fusingStatus\": [\"production\"]}" --darwin-init-preferences "[{\"application_id\": \"com.apple.thimble.inference.tie-controllerd\", \"key\": \"RoutingLayerNameOverride\", \"value\": \"${LLM_ROUTING_ID}\"}]"' 
+  alias dcpccagentcreate='devicecompute session create --role pccagent --private-cloudos --hardware-model j236cap --manifest-train "${PCCTRAIN}" --manifest-variant pcc-agent-lab --darwin-init-preferences "[{\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"RoutingTags\", \"value\": {\"services\": [\"tie-cloudboard-apple-com\"], \"routingGroupAliases\": [\"${PCCAGENT_ROUTING_ID}\"]}}, {\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"ServiceName\", \"value\": \"trusted-proxy\"}, {\"application_id\":\"com.apple.cloudos.cb_jobhelper\",\"key\":\"CloudAppName\",\"value\":\"PCCAgentApp\"}]"'
+  alias dcpccall='pccinfo && dcpccllmcreate & dcpccagentcreate'
+  alias pccinfo='echo "LLM_ROUTING_ID: ${LLM_ROUTING_ID}" && echo "PCCAGENT_ROUTING_ID:${PCCAGENT_ROUTING_ID}"'
+  alias pccagentsid='devicecompute session list | awk '\''$2 == "pccagent" { print $1 }'\'''
+  # for devicecompute
+  alias dcsl='devicecompute session list'
+  alias dcss='devicecompute session ssh --session-id '
+  # other
+    alias blobby='aws --endpoint-url https://blob.mr3.simcloud.apple.com --cli-read-timeout 300 --profile blobby'
+else
+  alias idfenv='. $HOME/projects/opensource/esp/esp-idf/export.sh'
+  alias ib='idf.py build'
+  alias ic='idf.py clean'
+  alias ibf='idf.py build flash'
+  alias ibfm='idf.py build flash monitor'
+  alias ifm='idf.py flash monitor'
+  alias matterenv='. $HOME/projects/opensource/esp/esp-matter/export.sh'
+  alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
+fi

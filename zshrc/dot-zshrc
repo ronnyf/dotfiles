@@ -28,8 +28,17 @@ source $ZSH/oh-my-zsh.sh
 # Preferred editor for local and remote sessions
 export EDITOR='nvim'
 
+# Am I at work?
+if [[ -f "$HOME/.iamatwork" ]]; then
+    export IAMAT="WORK"
+    [[ -f "$HOME/.zshrc.work" ]] && source "$HOME/.zshrc.work"
+else
+    export IAMAT="HOME"
+    [[ -f "$HOME/.zshrc.home" ]] && source "$HOME/.zshrc.home"
+fi
+
 # Alias stuff
-[[ ! -f ~/.zshrc.alias ]] || source ~/.zshrc.alias
+[[ ! -f "$HOME/.zshrc.alias" ]] || source "$HOME/.zshrc.alias"
 
 # key bindings
 bindkey "^[[1;3C" forward-word

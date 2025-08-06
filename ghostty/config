@@ -1,0 +1,22 @@
+# The syntax is "key = value". The whitespace around the
+# equals doesn't matter.
+background = 1e1d2c
+foreground = ced5f1
+selection-background = 585a6e
+selection-foreground = ced5f1
+cursor-color = f1e0dc
+
+# Comments start with a `#` and are only valid on their own line.
+# Blank lines are ignored!
+
+keybind = ctrl+z=close_surface
+keybind = ctrl+s=new_split:right
+
+# Empty values reset the configuration to the default value
+font-family = "SauceCodePro Nerd Font"
+font-size = 15
+
+scrollback-limit = 8192 
+window-theme = dark
+window-height = 42
+window-width = 142
