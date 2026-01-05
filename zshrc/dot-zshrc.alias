@@ -1,13 +1,18 @@
 if [[ -n "$IAMAT" && "$IAMAT" == "WORK" ]]; then
   # for pccagent
-  alias dcpccllmcreate='devicecompute session create --private-cloudos --ensemble-size 8 --manifest-train "${PCCTRAIN}" --manifest-version "${PCCTRAIN_VERSION}" -c "{\"fusingStatus\": [\"production\"]}" --darwin-init-preferences "[{\"application_id\": \"com.apple.thimble.inference.tie-controllerd\", \"key\": \"RoutingLayerNameOverride\", \"value\": \"${LLM_ROUTING_ID}\"}]"' 
-  alias dcpccagentcreate='devicecompute session create --role pccagent --private-cloudos --hardware-model j236cap --manifest-train "${PCCTRAIN}" --manifest-variant pcc-agent-lab --darwin-init-preferences "[{\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"RoutingTags\", \"value\": {\"services\": [\"tie-cloudboard-apple-com\"], \"routingGroupAliases\": [\"${PCCAGENT_ROUTING_ID}\"]}}, {\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"ServiceName\", \"value\": \"trusted-proxy\"}, {\"application_id\":\"com.apple.cloudos.cb_jobhelper\",\"key\":\"CloudAppName\",\"value\":\"PCCAgentApp\"}]"'
-  alias dcpccall='pccinfo && dcpccllmcreate & dcpccagentcreate'
+  alias dc='devicecompute'
+  alias dcs='devicecompute session'
+  alias dcmake-pccllm='devicecompute session create --private-cloudos --ensemble-size 8 --manifest-train "${LLMTRAIN}" --manifest-version "${LLMTRAIN_VERSION}" -c "{\"fusingStatus\": [\"production\"]}" --darwin-init-preferences "[{\"application_id\": \"com.apple.thimble.inference.tie-controllerd\", \"key\": \"RoutingLayerNameOverride\", \"value\": \"${LLM_ROUTING_ID}\"}]"' 
+  # v---- w/o cryptex
+  # alias dcmake-pccagent='devicecompute session create --role pccagent --private-cloudos --hardware-model j236cap --manifest-train "${PCCTRAIN}" --manifest-variant pcc-agent-lab --darwin-init-preferences "[{\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"RoutingTags\", \"value\": {\"services\": [\"tie-cloudboard-apple-com\"], \"routingGroupAliases\": [\"${PCCAGENT_ROUTING_ID}\"]}}, {\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"ServiceName\", \"value\": \"trusted-proxy\"}]" --darwin-init "{\"secure-config\":{\"com.apple.cloudboard.cloudApps\":[\"PCCAgentApp\"]}}"'
+  # v---- with cryptex 
+  alias dcmake-pccagent='devicecompute session create --role pccagent --private-cloudos --hardware-model j236cap --manifest-train "${PCCTRAIN}" --manifest-variant pcc-agent-lab --darwin-init-preferences "[{\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"RoutingTags\", \"value\": {\"services\": [\"tie-cloudboard-apple-com\"], \"routingGroupAliases\": [\"${PCCAGENT_ROUTING_ID}\"]}}, {\"application_id\": \"com.apple.cloudos.PCCAgentController\", \"key\": \"ServiceName\", \"value\": \"trusted-proxy\"}]" --darwin-init "{\"secure-config\":{\"com.apple.cloudboard.cloudApps\":[\"PCCAgentApp\"]}}" --darwin-init-cryptex "@cryptexes.json"'
+  alias dcmake-pccall='pccinfo && dcmake-pccllm & dcmake-pccagent'
   alias pccinfo='echo "LLM_ROUTING_ID: ${LLM_ROUTING_ID}" && echo "PCCAGENT_ROUTING_ID:${PCCAGENT_ROUTING_ID}"'
-  alias pccagentsid='devicecompute session list | awk '\''$2 == "pccagent" { print $1 }'\'''
+  alias pccagentsid='devicecompute session list | awk '\''$2 == "pccagent" { print $1; exit }'\'''
   # for devicecompute
   alias dcsl='devicecompute session list'
-  alias dcss='devicecompute session ssh --session-id '
+  alias dcssh='devicecompute session ssh --session-id '
   # other
     alias blobby='aws --endpoint-url https://blob.mr3.simcloud.apple.com --cli-read-timeout 300 --profile blobby'
 else
@@ -20,3 +25,5 @@ else
   alias matterenv='. $HOME/projects/opensource/esp/esp-matter/export.sh'
   alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
 fi
+
+alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'

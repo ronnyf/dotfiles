@@ -3,7 +3,12 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PYTHON_PATH=$PYENV_ROOT/shims
 export TMUXIFIER_LAYOUT_PATH=$HOME/.config/tmux/layouts
 export DOCKER_PATH=$HOME/.docker/bin
+export NODE_PATH=$(npm config get prefix)
 export PATH=$HOME/.local/bin:$HOME/.local/share:$PYENV_ROOT/bin:$HOME/.cargo/bin:$PYTHON_PATH:$DOCKER_PATH:/usr/local/bin:$PATH
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export HOMEBREW_PATH=/opt/homebrew
+    export PATH=$HOMEBREW_PATH/bin:$HOMEBREW_PATH/sbin:$PATH
+fi
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.config/oh-my-zsh"
@@ -72,6 +77,11 @@ source <(fzf --zsh)
 source <(pyenv init -)
 # For sh/bash/zsh/ash/dash/pdksh
 source <($HOME/.cargo/env)            
+# Secure Credential Storage with macOS Keychain
+# eval "$(direnv hook zsh)"
+
+# claude specific
+[[ ! -f ~/.zshrc.claude ]] || source ~/.zshrc.claude
 
 #ESP dev
 if [ -d $HOME/projects/opensource/esp ]; then

@@ -9,14 +9,21 @@ cursor-color = f1e0dc
 # Comments start with a `#` and are only valid on their own line.
 # Blank lines are ignored!
 
-keybind = ctrl+z=close_surface
+keybind = opt+z=close_surface
 keybind = ctrl+s=new_split:right
+# for claude ---v
+keybind = shift+enter=text:\x1b\r
 
 # Empty values reset the configuration to the default value
 font-family = "SauceCodePro Nerd Font"
 font-size = 15
 
-scrollback-limit = 8192 
+# 512MB scroll back limit (should be plenty)
+scrollback-limit = 536870912
 window-theme = dark
 window-height = 42
 window-width = 142
+
+# sudo stuff
+shell-integration-features = sudo
+
