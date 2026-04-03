@@ -3,7 +3,18 @@
 target_file_name="target.stowy"
 current=`pwd`
 
-for entry in "${current}"/*; do
+# If a package name is provided, only process that package
+if [ -n "$1" ]; then
+	entries="${current}/$1"
+else
+	entries="${current}"/*
+fi
+
+for entry in ${entries}; do
+	if [ ! -d "${entry}" ]; then
+		continue
+	fi
+	
 	target_path="${entry}/${target_file_name}"
 	if [ -e "${target_path}" ]; then
 		package=`basename ${entry}`

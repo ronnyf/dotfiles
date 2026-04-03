@@ -27,10 +27,15 @@ def is_directory_managed(dir_name: str) -> bool:
     if not target_path.exists():
         return False
     
-    for item in target_path.iterdir():
+    # Check if the specific directory (dir_name) has symlinks pointing to this package
+    dir_target = target_path / dir_name
+    if not dir_target.exists():
+        return False
+    
+    for item in dir_target.iterdir():
         if item.is_symlink():
             target = item.resolve()
-            if str(DOTFILES_ROOT) in str(target):
+            if str(package_path) in str(target):
                 return True
     
     return False
@@ -187,9 +192,9 @@ def merge_directory(source: Path, dest: Path, dry_run: bool = False) -> tuple:
     return copied, conflicts
 
 
-def run_stow(package_name: str, dry_run: bool = False) -> bool:
-    """Run stow to create symlinks for a package."""
-    cmd = ["stow", "-t", str(CONFIG_ROOT), "-v", package_name, "--dotfiles", "--ignore=^target\\.stowy$", "--ignore=\\.DS_Store"]
+def run_stowy(package_name: str, dry_run: bool = False) -> bool:
+    """Run stowy for a specific package."""
+    cmd = ["./stowy.sh"]
     
     if dry_run:
         print(f"  Would run: {' '.join(cmd)}")
@@ -198,10 +203,10 @@ def run_stow(package_name: str, dry_run: bool = False) -> bool:
     result = run(cmd, cwd=str(DOTFILES_ROOT), capture_output=True, text=True)
     
     if result.returncode == 0:
-        print(f"  Stow successful")
+        print(f"  Stowy successful")
         return True
     else:
-        print(f"  Stow failed: {result.stderr}")
+        print(f"  Stowy failed: {result.stderr}")
         return False
 
 
@@ -261,9 +266,9 @@ def main():
                     if not args.dry_run:
                         item.unlink()
             
-            copied = copy_directory_content(source_dir, package_path, dry_run=False)
+            copied = copy_directory_content(source_dir, package_path / dir_name, dry_run=False)
         else:  # merge
-            copied, conflicts = merge_directory(source_dir, package_path, dry_run=False)
+            copied, conflicts = merge_directory(source_dir, package_path / dir_name, dry_run=False)
             
             if conflicts:
                 print(f"  Found {len(conflicts)} conflict(s):")
@@ -271,7 +276,7 @@ def main():
                     print(f"    - {conflict}")
                 
                 for conflict in conflicts:
-                    dest_file = package_path / conflict
+                    dest_file = package_path / dir_name / conflict
                     source_file = source_dir / conflict
                     
                     choice = prompt_conflict(str(dest_file), str(source_file), auto_resolve=args.yes)
@@ -292,7 +297,14 @@ def main():
         for f in copied:
             print(f"    - {f}")
         
-        run_stow(dir_name, dry_run=False)
+        # Remove existing directory in ~/.config to allow fresh stowing
+        target_dir = CONFIG_ROOT / dir_name
+        if target_dir.exists():
+            if not args.dry_run:
+                shutil.rmtree(target_dir)
+            print(f"  Removed existing {target_dir}")
+        
+        run_stowy(dir_name, dry_run=args.dry_run)
     
     print("\nImport complete!")
 

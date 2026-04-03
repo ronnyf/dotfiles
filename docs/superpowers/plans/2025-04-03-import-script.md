@@ -4,7 +4,13 @@
 
 **Goal:** Create `import.py` script to import existing config directories from `~/.config` into the dotfiles repo, only for directories that have a corresponding package in dotfiles, with interactive prompts for handling conflicts and existing content
 
-**Architecture:** Python script that scans `~/.config` for directories with content, filters to only those with a corresponding package directory in dotfiles (with `target.stowy`), and offers interactive choices (skip/replace/merge) before copying content and creating stowy configuration
+**Architecture:** Python script that scans `~/.config` for directories with content, filters to only those with a corresponding package directory in dotfiles (with `target.stowy`), and offers interactive choices (skip/replace/merge) before copying content and calling stowy.sh to create symlinks
+
+**Package Structure:**
+- Each package directory in `.dotfiles/` contains:
+  1. `target.stowy` - file specifying `STOWY_TARGET=$HOME/.config`
+  2. Subdirectory with same name as package - contains the actual config files
+- Stow creates a symlink from `~/.config/packagename` -> `../.dotfiles/packagename/packagename`
 
 **Tech Stack:** Python 3 (standard library only - os, shutil, pathlib, subprocess, sys)
 
@@ -13,8 +19,14 @@
 ## File Structure
 
 - Create: `import.py` - Main import script (Python)
-- Modify: None (new script)
+- Modify: `stowy.sh` - Add support for processing a single package
 - Test: Manual testing with `python3 import.py --dry-run`
+
+**Package Structure:**
+- Each package directory in `.dotfiles/` contains:
+  1. `target.stowy` - file specifying `STOWY_TARGET=$HOME/.config`
+  2. Subdirectory with same name as package - contains the actual config files
+- Stow creates a symlink from `~/.config/packagename` -> `../.dotfiles/packagename/packagename`
 
 ---
 
@@ -579,9 +591,11 @@ git commit -m "feat: add import.py script for importing config directories"
 - ✅ Interactive prompts for skip/replace/merge
 - ✅ Conflict resolution with local/remote/both options
 - ✅ Create target.stowy for new packages
-- ✅ Run stow after import
+- ✅ Copy files to package/subdirectory (e.g., `fd/fd/`)
+- ✅ Call stowy.sh to create symlinks
 - ✅ Dry-run mode
 - ✅ --yes mode for non-interactive use
+- ✅ Remove existing directory in ~/.config before stowing
 
 **2. Placeholder scan:**
 - No TBD, TODO, or incomplete code blocks
@@ -597,6 +611,7 @@ git commit -m "feat: add import.py script for importing config directories"
 - Handles empty directories
 - Handles symlinks in target directories
 - Handles existing symlinks in dotfiles packages
+- Removes existing directory in ~/.config before stowing to ensure clean import
 
 ---
 
