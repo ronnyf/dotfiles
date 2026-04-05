@@ -1,52 +1,83 @@
 # AGENTS.md
 
-This file contains guidelines for working with this dotfiles repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+# Install/update all package symlinks
+./stowy.sh
+
+# Install/update a single package
+./stowy.sh <package-name>
+
+# Import unmanaged ~/.config directories into dotfiles
+python3 import.py              # interactive
+python3 import.py --dry-run    # preview only
+python3 import.py --yes        # auto-accept all
+```
 
 ## Architecture
 
-This dotfiles repository uses GNU Stow for symlink management with a custom `stowy.sh` wrapper:
+GNU Stow-based dotfiles with a custom `stowy.sh` wrapper. Each top-level directory is a stow package containing a `target.stowy` file that declares where its contents should be symlinked.
 
-- Each directory represents a package to be stowed
-- Each package directory contains a `target.stowy` file specifying the target path
-- Payload files are named with `dot-` prefix (e.g., `dot-zshrc`, `dot-p10k.zsh`)
-- Run `./stowy.sh` to install/update all packages
-- Packages: `zshrc`, `zsh`, `zsh_custom`, `tmux`, `nvim`, `omz`, `omz_plugins`, `omz_themes`, `wezterm`, `ghostty`, `fd`, `iTerm2`, `xcode-themes`
+### Package → Target Mapping
 
-## Package Structure
+| Package | Stow Target |
+|---------|------------|
+| `zshrc` | `$HOME` (dot-zshrc, dot-zshrc.alias) |
+| `zsh` | `$HOME/.config/zsh` |
+| `zsh_custom` | `$HOME/.config/zsh_custom` |
+| `omz` | `$HOME/.config` (oh-my-zsh submodule) |
+| `omz_plugins` | `$HOME/.config/zsh_custom/plugins` |
+| `omz_themes` | `$HOME/.config/zsh_custom/themes` |
+| `nvim` | `$HOME/.config` (NvChad fork submodule) |
+| `tmux` | `$HOME/.config/tmux` |
+| `ghostty` | `$HOME/.config/ghostty` |
+| `alacritty` | `$HOME/.config/alacritty` |
+| `wezterm` | `$HOME/.config/wezterm` |
+| `opencode` | `$HOME/.config` |
+| `fd` | `$HOME/.config/fd` |
+| `iTerm2` | `$HOME/.config` |
+| `xcode-themes` | `$HOME/Library/Developer/Xcode/UserData` |
 
-Each package directory follows this pattern:
+### How stowy.sh Works
 
-```
-package/
-├── target.stowy      # Specifies STOWY_TARGET path
-├── dot-file1         # Payload files (dot- prefix)
-├── dot-file2
-└── subdirectory/
-    ├── dot-file3
-    └── target.stowy  # Optional nested target
-```
+1. Scans for directories containing `target.stowy`
+2. Sources `target.stowy` to read `STOWY_TARGET=<path>`
+3. Creates target directory if missing
+4. Runs `stow -t <target> -v <package> --dotfiles --ignore=^target\.stowy$ --ignore=\.DS_Store`
 
-The `stowy.sh` script:
-1. Finds all directories containing `target.stowy`
-2. Reads `STOWY_TARGET` from each file
-3. Creates target directory if needed
-4. Runs `stow -t <target> -v <package> --dotfiles`
+The `--dotfiles` flag means files prefixed with `dot-` become dotfiles at the target (e.g., `dot-zshrc` → `.zshrc`).
+
+### Submodules
+
+Several packages contain git submodules (see `.gitmodules`):
+- `omz/oh-my-zsh` — Oh My Zsh framework
+- `omz_plugins/zsh-autosuggestions`, `omz_plugins/zsh-syntax-highlighting`
+- `omz_themes/powerlevel10k`
+- `tmux/plugins/tpm`, `tmux/plugins/tmux` (dracula), `tmux/plugins/tmuxifier`, `tmux/plugins/vim-tmux-navigator`
+- `nvim/nvim` — personal NvChad fork (`git@github.com:ronnyf/NvChad.git`, branch: current)
+
+### import.py
+
+Python script that scans `~/.config` for directories that have a matching package in the dotfiles repo (i.e., a `target.stowy` exists) but aren't yet symlinked. Offers interactive import with skip/replace/merge and conflict resolution.
+
+## Shell Environment
+
+`zshrc/dot-zshrc` detects work vs. home via a `$HOME/.iamatwork` flag file:
+- **Work mode**: device compute aliases (dc, dcs, dcmake-*), AWS blobby
+- **Home mode**: ESP32/IDF development aliases (idfenv, ib, ic, etc.)
+
+Aliases are defined in `zshrc/dot-zshrc.alias`, sourced conditionally.
 
 ## Naming Conventions
 
-- **Files**: snake_case with `.lua`, `.zsh`, `.conf` extensions
-- **Dotfiles**: use `dot-` prefix (e.g., `dot-zshrc`)
-
-## Key Configuration Files
-
-- **Zsh**: `zshrc/dot-zshrc` (main config), `zsh/dot-p10k.zsh` (powerlevel10k)
-- **Neovim**: `nvim/nvim/init.lua`, `nvim/nvim/lua/options.lua`
-- **Tmux**: `tmux/tmux.conf`
-- **Keymaps**: `nvim/nvim/lua/mappings.lua`
+- Config files: snake_case with appropriate extensions (`.lua`, `.zsh`, `.conf`, `.toml`)
+- Stow payload files: `dot-` prefix (e.g., `dot-zshrc`, `dot-p10k.zsh`)
 
 ## Important Notes
 
-- This is a dotfiles repository - changes affect user environment
-- Test changes in a safe environment before committing
-- Run `./stowy.sh` to install/update all symlinks after making changes
-- Subdirectories (omz, omz_plugins, omz_themes, nvim/nvim) are opaque payloads managed by their respective tools
+- Changes here affect the user's live environment once stowed
+- `nvim/nvim` is a submodule pointing to a personal NvChad fork — do not restructure it
+- Submodule directories (omz, omz_plugins, omz_themes, tmux/plugins) are managed upstream; edit only top-level config files
