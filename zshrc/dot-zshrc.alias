@@ -16,7 +16,7 @@ if [[ -n "$IAMAT" && "$IAMAT" == "WORK" ]]; then
   # other
     alias blobby='aws --endpoint-url https://blob.mr3.simcloud.apple.com --cli-read-timeout 300 --profile blobby'
 else
-  alias idfenv='. $HOME/projects/opensource/esp/esp-idf/export.sh'
+  alias idfenv='. $HOME/src/.espressif/v5.5.4/esp-idf/export.sh'
   alias ib='idf.py build'
   alias ic='idf.py clean'
   alias ibf='idf.py build flash'
