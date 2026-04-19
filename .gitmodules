@@ -17,3 +17,12 @@
 [submodule "neovim/nvim"]
 	path = neovim/nvim
 	url = https://github.com/ronnyf/kickstart.nvim.git
+[submodule "zsh-plugins/zsh-autosuggestions"]
+	path = zsh-plugins/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "zsh-plugins/zsh-syntax-highlighting"]
+	path = zsh-plugins/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule "zsh-plugins/zsh-autocomplete"]
+	path = zsh-plugins/zsh-autocomplete
+	url = https://github.com/marlonrichert/zsh-autocomplete.git
