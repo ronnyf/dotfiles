@@ -13,27 +13,6 @@ fi
 eval "$(fnm env --use-on-cd --shell zsh)"
 export NODE_PATH=$(npm config get prefix)
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.config/oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#ZSH_THEME="robbyrussell"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=$HOME/.config/zsh_custom
-
-plugins=(
-  git 
-  zsh-syntax-highlighting
-  zsh-autosuggestions
-)
-
-source $ZSH/oh-my-zsh.sh
-
 # Preferred editor for local and remote sessions
 export EDITOR='nvim'
 
@@ -72,8 +51,8 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 export FZF_DEFAULT_COMMAND='fd --type f'
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --inline-info --preview 'bat --color=always {}' --preview-window '~3'"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 source <(zoxide init zsh)
 source <(~/.config/tmux/plugins/tmuxifier/bin/tmuxifier init -)
 source <(fzf --zsh)
@@ -83,16 +62,9 @@ source <($HOME/.cargo/env)
 # Secure Credential Storage with macOS Keychain
 # eval "$(direnv hook zsh)"
 
+# Set up the Starship prompt
+eval "$(starship init zsh)"
+
 # claude specific
 [[ ! -f ~/.zshrc.claude ]] || source ~/.zshrc.claude
-
-#ESP dev
-if [ -d $HOME/projects/opensource/esp ]; then
-  export ESP_ROOT=$HOME/projects/opensource/esp
-  export IDF_TOOLS_PATH=$ESP_ROOT/tools
-
-  if [ -d $ESP_ROOT/esp-homekit-sdk ]; then
-    export HOMEKIT_PATH=$ESP_ROOT/esp-homekit-sdk
-  fi
-fi
 

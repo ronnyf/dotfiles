@@ -26,4 +26,10 @@ else
   alias matterdev='idfenv && matterenv && export IDF_CCACHE_ENABLE=1'
 fi
 
+# The most important aliases ever (the only thing I borrowed from OMZ)
+alias l='ls -lah'
+alias la='ls -lAh'
+alias ll='ls -lh'
+alias ls='ls -G'
+alias lsa='ls -lah'
 alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'
