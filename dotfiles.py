@@ -199,6 +199,31 @@ def _check_paths_have_real_files(check_paths: list) -> bool:
     return False
 
 
+def _iter_target_pairs(
+    package_path: Path, target: Path, pattern: PackagePattern
+):
+    """Yield (pkg_file, target_file) pairs lazily without sorting."""
+    if pattern == PackagePattern.FLAT:
+        for item in package_path.rglob("*"):
+            if item.is_file() and item.name not in IGNORED:
+                rel = item.relative_to(package_path)
+                parts = list(rel.parts)
+                parts[0] = stow_target_name(parts[0])
+                yield item, target / Path(*parts)
+    else:
+        for subdir in package_path.iterdir():
+            if subdir.name in IGNORED or not subdir.is_dir():
+                continue
+            for item in subdir.rglob("*"):
+                if item.is_file():
+                    rel = item.relative_to(package_path)
+                    parts = list(rel.parts)
+                    parts[0] = stow_target_name(parts[0])
+                    for i in range(1, len(parts)):
+                        parts[i] = stow_target_name(parts[i])
+                    yield item, target / Path(*parts)
+
+
 def detect_state(
     package_path: Path,
     target: Path,
@@ -207,19 +232,27 @@ def detect_state(
 ) -> PackageState:
     """Determine the current state of a package."""
     has_payload = _has_payload(package_path)
-    any_symlinked = _has_symlinks_to_package(package_path, target, pattern)
 
-    if has_payload:
-        any_real_files = _has_real_files(package_path, target, pattern)
-    else:
-        any_real_files = _check_paths_have_real_files(check_paths)
+    if not has_payload:
+        if _check_paths_have_real_files(check_paths):
+            return PackageState.IMPORTABLE
+        return PackageState.NOT_STOWED
 
-    if any_symlinked:
-        return PackageState.STOWED
-    if any_real_files and has_payload:
+    pkg_resolved = package_path.resolve()
+    found_real = False
+
+    for _pkg_file, target_file in _iter_target_pairs(package_path, target, pattern):
+        try:
+            resolved = target_file.resolve()
+            if resolved.is_relative_to(pkg_resolved):
+                return PackageState.STOWED
+            if target_file.exists():
+                found_real = True
+        except (OSError, ValueError):
+            continue
+
+    if found_real:
         return PackageState.CONFLICT
-    if any_real_files and not has_payload:
-        return PackageState.IMPORTABLE
     return PackageState.NOT_STOWED
 
 
