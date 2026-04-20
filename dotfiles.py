@@ -43,6 +43,20 @@ DOTFILES_ROOT = Path(__file__).parent.resolve()
 IGNORED = {"target.stowy", ".DS_Store"}
 
 
+def stow_target_name(name: str) -> str:
+    """Apply stow --dotfiles translation: 'dot-' prefix becomes '.' prefix."""
+    if name.startswith("dot-"):
+        return "." + name[4:]
+    return name
+
+
+def package_file_name(name: str) -> str:
+    """Reverse stow --dotfiles translation: '.' prefix becomes 'dot-' prefix."""
+    if name.startswith("."):
+        return "dot-" + name[1:]
+    return name
+
+
 # ---------------------------------------------------------------------------
 # Core — target.stowy parser
 # ---------------------------------------------------------------------------
@@ -94,6 +108,40 @@ def get_check_paths(package_path: Path, target: Path, pattern: PackagePattern) -
     return paths
 
 
+def get_package_target_paths(
+    package_path: Path, target: Path, pattern: PackagePattern
+) -> list:
+    """Return list of (pkg_file, target_file) for every payload file in the package.
+
+    Applies stow --dotfiles translation so dot-zshrc maps to target/.zshrc.
+    """
+    pairs = []
+
+    if pattern == PackagePattern.FLAT:
+        for item in sorted(package_path.rglob("*")):
+            if item.is_file() and item.name not in IGNORED:
+                rel = item.relative_to(package_path)
+                parts = list(rel.parts)
+                parts[0] = stow_target_name(parts[0])
+                target_file = target / Path(*parts)
+                pairs.append((item, target_file))
+    else:
+        for subdir in sorted(package_path.iterdir()):
+            if subdir.name in IGNORED or not subdir.is_dir():
+                continue
+            for item in sorted(subdir.rglob("*")):
+                if item.is_file():
+                    rel = item.relative_to(package_path)
+                    parts = list(rel.parts)
+                    parts[0] = stow_target_name(parts[0])
+                    for i in range(1, len(parts)):
+                        parts[i] = stow_target_name(parts[i])
+                    target_file = target / Path(*parts)
+                    pairs.append((item, target_file))
+
+    return pairs
+
+
 def _has_payload(package_path: Path) -> bool:
     """Check if a package has content beyond target.stowy."""
     for item in package_path.iterdir():
@@ -102,44 +150,52 @@ def _has_payload(package_path: Path) -> bool:
     return False
 
 
-def _has_symlinks_to_package(check_path: Path, package_path: Path) -> bool:
-    """Check if check_path contains symlinks pointing back to package_path."""
-    if not check_path.exists():
-        return False
-    # Check if the check_path itself is a symlink to the package
-    if check_path.is_symlink():
+def _has_symlinks_to_package(package_path: Path, target: Path,
+                             pattern: PackagePattern) -> bool:
+    """Check if specific package files exist as symlinks at the target.
+
+    Handles both file-level symlinks (flat) and directory-level symlinks (nested)
+    by resolving the full path and checking if it lands inside the package.
+    """
+    pkg_resolved = package_path.resolve()
+    pairs = get_package_target_paths(package_path, target, pattern)
+    for _pkg_file, target_file in pairs:
         try:
-            resolved = check_path.resolve()
-            if str(resolved).startswith(str(package_path.resolve())):
+            resolved = target_file.resolve()
+            if resolved.is_relative_to(pkg_resolved):
                 return True
-        except OSError:
-            pass
-        return False
-    # Check files inside the directory
-    if check_path.is_dir():
-        for item in check_path.iterdir():
-            if item.is_symlink():
-                try:
-                    resolved = item.resolve()
-                    if str(resolved).startswith(str(package_path.resolve())):
-                        return True
-                except OSError:
-                    continue
+        except (OSError, ValueError):
+            continue
     return False
 
 
-def _has_real_files(check_path: Path) -> bool:
-    """Check if check_path contains real (non-symlink) files."""
-    if not check_path.exists():
+def _has_real_files(package_path: Path, target: Path,
+                    pattern: PackagePattern) -> bool:
+    """Check if specific package files exist as real (non-symlink) files at the target."""
+    pairs = get_package_target_paths(package_path, target, pattern)
+    if not pairs:
         return False
-    if check_path.is_symlink():
-        return False
-    if check_path.is_dir():
-        for item in check_path.iterdir():
-            if not item.is_symlink() and item.is_file():
-                return True
-            if item.is_dir() and not item.is_symlink():
-                return True
+    for _pkg_file, target_file in pairs:
+        if not target_file.exists():
+            continue
+        resolved = target_file.resolve()
+        if not resolved.is_relative_to(package_path.resolve()):
+            return True
+    return False
+
+
+def _check_paths_have_real_files(check_paths: list) -> bool:
+    """Check if any of the check_paths contain real (non-symlink) files.
+
+    Used for IMPORTABLE detection when a package has no payload files.
+    """
+    for cp in check_paths:
+        if not cp.exists() or cp.is_symlink():
+            continue
+        if cp.is_dir():
+            for item in cp.iterdir():
+                if not item.is_symlink() and (item.is_file() or item.is_dir()):
+                    return True
     return False
 
 
@@ -151,15 +207,12 @@ def detect_state(
 ) -> PackageState:
     """Determine the current state of a package."""
     has_payload = _has_payload(package_path)
+    any_symlinked = _has_symlinks_to_package(package_path, target, pattern)
 
-    # Check all effective check paths
-    any_symlinked = False
-    any_real_files = False
-    for cp in check_paths:
-        if _has_symlinks_to_package(cp, package_path):
-            any_symlinked = True
-        if _has_real_files(cp):
-            any_real_files = True
+    if has_payload:
+        any_real_files = _has_real_files(package_path, target, pattern)
+    else:
+        any_real_files = _check_paths_have_real_files(check_paths)
 
     if any_symlinked:
         return PackageState.STOWED
@@ -231,26 +284,29 @@ def import_package(
     dry_run: bool = False,
     check_paths: list = None,
 ) -> list:
-    """Copy files from target into the package. Skips files that already
-    exist in the package (e.g., already handled by conflict resolution).
-    Returns list of copied relative paths."""
+    """Copy files from target into the package, applying reverse dot-prefix
+    translation. Skips files that already exist in the package.
+    Returns list of copied relative paths (using package naming)."""
     copied = []
 
     if pattern == PackagePattern.FLAT:
         if not target.exists():
             return copied
-        for item in target.rglob("*"):
+        for item in sorted(target.rglob("*")):
             if item.is_file() and not item.is_symlink():
                 rel = item.relative_to(target)
-                dest = package_path / rel
+                parts = list(rel.parts)
+                parts[0] = package_file_name(parts[0])
+                pkg_rel = Path(*parts)
+                dest = package_path / pkg_rel
                 if dest.exists():
                     continue
                 if dry_run:
-                    copied.append(str(rel))
+                    copied.append(str(pkg_rel))
                     continue
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, dest)
-                copied.append(str(rel))
+                copied.append(str(pkg_rel))
     else:
         paths = check_paths or []
         for cp in paths:
@@ -274,33 +330,17 @@ def import_package(
     return copied
 
 
-def find_conflicts(package_path: Path, target: Path, pattern: PackagePattern,
-                   check_paths: list = None) -> list:
+def find_conflicts(package_path: Path, target: Path, pattern: PackagePattern) -> list:
     """Find files that exist in both package and target.
-    Returns list of (relative_path, pkg_file, target_file)."""
+    Returns list of (relative_path, pkg_file, target_file).
+    relative_path uses the package filename (e.g. dot-zshrc, not .zshrc)."""
     conflicts = []
+    pairs = get_package_target_paths(package_path, target, pattern)
 
-    if pattern == PackagePattern.FLAT:
-        if not target.exists():
-            return conflicts
-        for item in target.rglob("*"):
-            if item.is_file() and not item.is_symlink():
-                rel = item.relative_to(target)
-                pkg_file = package_path / rel
-                if pkg_file.exists() and not pkg_file.is_symlink():
-                    conflicts.append((str(rel), pkg_file, item))
-    else:
-        paths = check_paths or []
-        for cp in paths:
-            if not cp.exists() or cp.is_symlink():
-                continue
-            subdir_name = cp.name
-            for item in cp.rglob("*"):
-                if item.is_file() and not item.is_symlink():
-                    rel = item.relative_to(cp)
-                    pkg_file = package_path / subdir_name / rel
-                    if pkg_file.exists() and not pkg_file.is_symlink():
-                        conflicts.append((f"{subdir_name}/{rel}", pkg_file, item))
+    for pkg_file, target_file in pairs:
+        if target_file.exists() and not target_file.is_symlink():
+            rel_path = str(pkg_file.relative_to(package_path))
+            conflicts.append((rel_path, pkg_file, target_file))
 
     return conflicts
 
@@ -327,8 +367,14 @@ def resolve_conflict(pkg_file: Path, target_file: Path, choice: str,
     return f"Unknown choice: {choice}"
 
 
+PROTECTED_PATHS = {Path.home(), Path.home() / ".config", Path("/"), Path("/tmp")}
+
+
 def remove_target(target_path: Path, dry_run: bool = False) -> str:
     """Remove the real directory at target so stow can create symlinks."""
+    resolved = target_path.resolve()
+    if resolved in {p.resolve() for p in PROTECTED_PATHS}:
+        return f"Refused to remove protected path: {target_path}"
     if dry_run:
         return f"[DRY RUN] Would remove {target_path}"
     if target_path.exists() and not target_path.is_symlink():
@@ -457,10 +503,10 @@ def run_selection_screen(packages: list, dry_run: bool = False) -> list:
     return [pkg for pkg, sel in zip(packages, selected) if sel]
 
 
-def run_conflict_screen(pkg: Package, dry_run: bool = False) -> list:
+def run_conflict_screen(pkg: Package, dry_run: bool = False) -> list | None:
     """Show conflict resolution for a single package.
-    Returns list of (relative_path, choice, pkg_file, target_file) tuples."""
-    conflicts = find_conflicts(pkg.path, pkg.target, pkg.pattern, pkg.check_paths)
+    Returns list of resolutions, empty list if no conflicts, or None if cancelled."""
+    conflicts = find_conflicts(pkg.path, pkg.target, pkg.pattern)
     if not conflicts:
         return []
 
@@ -497,7 +543,7 @@ def run_conflict_screen(pkg: Package, dry_run: bool = False) -> list:
                 break
             elif key == "\x03":  # Ctrl+C
                 print("\nCancelled conflict resolution.")
-                return []
+                return None
             else:
                 print()  # ignore invalid key, re-prompt
 
@@ -535,16 +581,17 @@ def execute_actions(packages: list, dotfiles_root: Path, dry_run: bool = False):
                 print(f"  Copied: {f}")
             if pkg.pattern == PackagePattern.FLAT:
                 msg = remove_target(pkg.target, dry_run=dry_run)
+                print(f"  {msg}")
             else:
                 for cp in pkg.check_paths:
                     msg = remove_target(cp, dry_run=dry_run)
-            print(f"  {msg}")
+                    print(f"  {msg}")
             msg = stow_package(pkg.path, pkg.target, dotfiles_root, dry_run=dry_run)
             results.append(msg)
 
         elif pkg.state == PackageState.CONFLICT:
             resolutions = run_conflict_screen(pkg, dry_run=dry_run)
-            if not resolutions:
+            if resolutions is None:
                 results.append(f"Skipped '{pkg.name}' (conflict resolution cancelled)")
                 continue
             for rel_path, choice, pkg_file, target_file in resolutions:
@@ -556,10 +603,11 @@ def execute_actions(packages: list, dotfiles_root: Path, dry_run: bool = False):
                 print(f"  Copied: {f}")
             if pkg.pattern == PackagePattern.FLAT:
                 msg = remove_target(pkg.target, dry_run=dry_run)
+                print(f"  {msg}")
             else:
                 for cp in pkg.check_paths:
                     msg = remove_target(cp, dry_run=dry_run)
-            print(f"  {msg}")
+                    print(f"  {msg}")
             msg = stow_package(pkg.path, pkg.target, dotfiles_root, dry_run=dry_run)
             results.append(msg)
 

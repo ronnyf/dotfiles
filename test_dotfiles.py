@@ -42,6 +42,25 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TestStowTargetName(unittest.TestCase):
+    def test_dot_prefix_converted(self):
+        from dotfiles import stow_target_name
+        self.assertEqual(stow_target_name("dot-zshrc"), ".zshrc")
+
+    def test_dot_prefix_nested(self):
+        from dotfiles import stow_target_name
+        self.assertEqual(stow_target_name("dot-zshrc.alias"), ".zshrc.alias")
+
+    def test_no_dot_prefix_unchanged(self):
+        from dotfiles import stow_target_name
+        self.assertEqual(stow_target_name("config"), "config")
+        self.assertEqual(stow_target_name("init.lua"), "init.lua")
+
+    def test_dotfile_not_dotprefix(self):
+        from dotfiles import stow_target_name
+        self.assertEqual(stow_target_name(".gitignore"), ".gitignore")
+
+
 class TestDetectPattern(unittest.TestCase):
     def test_flat_package(self):
         from dotfiles import detect_pattern, PackagePattern
@@ -83,6 +102,61 @@ class TestGetCheckPaths(unittest.TestCase):
             target = Path("/tmp/parent")
             result = get_check_paths(pkg, target, PackagePattern.NESTED)
             self.assertEqual(result, [Path("/tmp/parent/myapp")])
+
+
+class TestGetPackageTargetPaths(unittest.TestCase):
+    def test_flat_with_dot_prefix(self):
+        from dotfiles import get_package_target_paths, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "zshrc"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("STOWY_TARGET=$HOME\n")
+            (pkg / "dot-zshrc").write_text("# zsh config\n")
+            (pkg / "dot-zshrc.alias").write_text("# aliases\n")
+            target = Path(tmp) / "home"
+
+            result = get_package_target_paths(pkg, target, PackagePattern.FLAT)
+
+            self.assertEqual(len(result), 2)
+            pkg_files = {r[0].name for r in result}
+            target_files = {r[1].name for r in result}
+            self.assertEqual(pkg_files, {"dot-zshrc", "dot-zshrc.alias"})
+            self.assertEqual(target_files, {".zshrc", ".zshrc.alias"})
+
+    def test_flat_without_dot_prefix(self):
+        from dotfiles import get_package_target_paths, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "ghostty"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            (pkg / "config").write_text("font=15\n")
+            target = Path(tmp) / "target"
+
+            result = get_package_target_paths(pkg, target, PackagePattern.FLAT)
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0][0].name, "config")
+            self.assertEqual(result[0][1].name, "config")
+
+    def test_nested_package(self):
+        from dotfiles import get_package_target_paths, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "neovim"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            nvim = pkg / "nvim"
+            nvim.mkdir()
+            (nvim / "init.lua").write_text("-- nvim\n")
+            (nvim / "lua").mkdir()
+            (nvim / "lua" / "settings.lua").write_text("-- s\n")
+            target = Path(tmp) / "config"
+
+            result = get_package_target_paths(pkg, target, PackagePattern.NESTED)
+
+            pkg_rels = {str(r[0].relative_to(pkg)) for r in result}
+            target_rels = {str(r[1].relative_to(target)) for r in result}
+            self.assertEqual(pkg_rels, {"nvim/init.lua", "nvim/lua/settings.lua"})
+            self.assertEqual(target_rels, {"nvim/init.lua", "nvim/lua/settings.lua"})
 
 
 class TestDetectState(unittest.TestCase):
@@ -154,7 +228,159 @@ class TestDetectState(unittest.TestCase):
             self.assertEqual(state, PackageState.CONFLICT)
 
 
+class TestDetectStateDotPrefix(unittest.TestCase):
+    def _make_package(self, tmp, name, target_path, files=None, subdirs=None):
+        pkg = Path(tmp) / name
+        pkg.mkdir(exist_ok=True)
+        (pkg / "target.stowy").write_text(f"STOWY_TARGET={target_path}\n")
+        if files:
+            for fname, content in files.items():
+                (pkg / fname).write_text(content)
+        if subdirs:
+            for dname, dfiles in subdirs.items():
+                d = pkg / dname
+                d.mkdir(exist_ok=True)
+                for fname, content in dfiles.items():
+                    (d / fname).write_text(content)
+        return pkg
+
+    def test_dot_prefix_not_stowed(self):
+        from dotfiles import detect_state, PackagePattern, PackageState
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = self._make_package(tmp, "zshrc", f"{tmp}/home",
+                                     files={"dot-zshrc": "# config"})
+            target = Path(f"{tmp}/home")
+            target.mkdir()
+            (target / "Documents").mkdir()
+            (target / ".bashrc").write_text("# bash")
+            state = detect_state(pkg, target, PackagePattern.FLAT, [target])
+            self.assertEqual(state, PackageState.NOT_STOWED)
+
+    def test_dot_prefix_conflict(self):
+        from dotfiles import detect_state, PackagePattern, PackageState
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = self._make_package(tmp, "zshrc", f"{tmp}/home",
+                                     files={"dot-zshrc": "# local config"})
+            target = Path(f"{tmp}/home")
+            target.mkdir()
+            (target / ".zshrc").write_text("# remote config")
+            (target / "Documents").mkdir()
+            state = detect_state(pkg, target, PackagePattern.FLAT, [target])
+            self.assertEqual(state, PackageState.CONFLICT)
+
+    def test_dot_prefix_stowed(self):
+        from dotfiles import detect_state, PackagePattern, PackageState
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = self._make_package(tmp, "zshrc", f"{tmp}/home",
+                                     files={"dot-zshrc": "# config"})
+            target = Path(f"{tmp}/home")
+            target.mkdir()
+            (target / ".zshrc").symlink_to(pkg / "dot-zshrc")
+            state = detect_state(pkg, target, PackagePattern.FLAT, [target])
+            self.assertEqual(state, PackageState.STOWED)
+
+
 from unittest.mock import patch, MagicMock
+
+
+class TestFindConflictsDotPrefix(unittest.TestCase):
+    def test_dot_prefix_conflict_detected(self):
+        from dotfiles import find_conflicts, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "zshrc"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            (pkg / "dot-zshrc").write_text("# local")
+            target = Path(tmp) / "home"
+            target.mkdir()
+            (target / ".zshrc").write_text("# remote")
+            (target / ".bashrc").write_text("# bash")
+
+            conflicts = find_conflicts(pkg, target, PackagePattern.FLAT)
+            self.assertEqual(len(conflicts), 1)
+            rel_path, pkg_file, target_file = conflicts[0]
+            self.assertEqual(rel_path, "dot-zshrc")
+            self.assertEqual(pkg_file, pkg / "dot-zshrc")
+            self.assertEqual(target_file, target / ".zshrc")
+
+    def test_no_dot_prefix_still_works(self):
+        from dotfiles import find_conflicts, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "ghostty"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            (pkg / "config").write_text("# local")
+            target = Path(tmp) / "target"
+            target.mkdir()
+            (target / "config").write_text("# remote")
+
+            conflicts = find_conflicts(pkg, target, PackagePattern.FLAT)
+            self.assertEqual(len(conflicts), 1)
+            self.assertEqual(conflicts[0][0], "config")
+
+    def test_no_conflict_when_target_missing(self):
+        from dotfiles import find_conflicts, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "zshrc"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            (pkg / "dot-zshrc").write_text("# local")
+            target = Path(tmp) / "home"
+            target.mkdir()
+
+            conflicts = find_conflicts(pkg, target, PackagePattern.FLAT)
+            self.assertEqual(len(conflicts), 0)
+
+
+class TestPackageFileName(unittest.TestCase):
+    def test_dot_prefix_reversed(self):
+        from dotfiles import package_file_name
+        self.assertEqual(package_file_name(".zshrc"), "dot-zshrc")
+
+    def test_no_dot_prefix_unchanged(self):
+        from dotfiles import package_file_name
+        self.assertEqual(package_file_name("config"), "config")
+
+
+class TestImportPackageDotPrefix(unittest.TestCase):
+    def test_import_dot_prefix_flat(self):
+        """Import translates . prefix to dot- prefix in package"""
+        from dotfiles import import_package, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "zshrc"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            target = Path(tmp) / "home"
+            target.mkdir()
+            (target / ".zshrc").write_text("# my config\n")
+            (target / ".zshrc.alias").write_text("# aliases\n")
+
+            copied = import_package(pkg, target, PackagePattern.FLAT)
+
+            self.assertIn("dot-zshrc", copied)
+            self.assertIn("dot-zshrc.alias", copied)
+            self.assertTrue((pkg / "dot-zshrc").exists())
+            self.assertEqual((pkg / "dot-zshrc").read_text(), "# my config\n")
+            self.assertTrue((pkg / "dot-zshrc.alias").exists())
+
+    def test_import_skips_existing_dot_prefix(self):
+        """Already-resolved files (dot-zshrc exists in pkg) are not re-imported"""
+        from dotfiles import import_package, PackagePattern
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "zshrc"
+            pkg.mkdir()
+            (pkg / "target.stowy").write_text("x\n")
+            (pkg / "dot-zshrc").write_text("# local version\n")
+            target = Path(tmp) / "home"
+            target.mkdir()
+            (target / ".zshrc").write_text("# remote version\n")
+            (target / ".zshrc.alias").write_text("# aliases\n")
+
+            copied = import_package(pkg, target, PackagePattern.FLAT)
+
+            self.assertNotIn("dot-zshrc", copied)
+            self.assertIn("dot-zshrc.alias", copied)
+            self.assertEqual((pkg / "dot-zshrc").read_text(), "# local version\n")
 
 
 class TestStowPackage(unittest.TestCase):
