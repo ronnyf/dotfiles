@@ -1,0 +1,3 @@
+STOWY_TARGET=$HOME/.config/opencode/skills
+STOWY_DIR=skills/superpowers
+STOWY_PACKAGE=skills

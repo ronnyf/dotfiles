@@ -30,6 +30,13 @@ class PackagePattern(Enum):
 
 
 @dataclass
+class StowyConfig:
+    target: Path
+    stow_dir: str | None = None
+    package: str | None = None
+
+
+@dataclass
 class Package:
     name: str
     path: Path                  # absolute path to package dir in dotfiles repo
@@ -37,6 +44,7 @@ class Package:
     pattern: PackagePattern
     state: PackageState
     check_paths: list           # effective check paths on disk
+    stow_dir: Path | None = None  # override stow directory for -d flag
 
 
 DOTFILES_ROOT = Path(__file__).parent.resolve()
@@ -61,23 +69,33 @@ def package_file_name(name: str) -> str:
 # Core — target.stowy parser
 # ---------------------------------------------------------------------------
 
-def parse_target_stowy(filepath: Path) -> Path:
-    """Parse a target.stowy file and return the resolved target path."""
+def parse_target_stowy(filepath: Path) -> StowyConfig:
+    """Parse a target.stowy file and return config with target, optional stow_dir and package."""
     text = filepath.read_text().strip()
+    values = {}
     for line in text.splitlines():
         line = line.strip()
-        if line.startswith("STOWY_TARGET="):
-            value = line.split("=", 1)[1]
-            # Strip surrounding quotes
-            if (value.startswith('"') and value.endswith('"')) or \
-               (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-            # Expand $HOME and ~
-            value = value.replace("$HOME", str(Path.home()))
-            if value.startswith("~"):
-                value = str(Path.home()) + value[1:]
-            return Path(value)
-    raise ValueError(f"No STOWY_TARGET found in {filepath}")
+        if '=' not in line or line.startswith('#'):
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip()
+        if (value.startswith('"') and value.endswith('"')) or \
+           (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        value = value.replace("$HOME", str(Path.home()))
+        if value.startswith("~"):
+            value = str(Path.home()) + value[1:]
+        values[key] = value
+
+    if 'STOWY_TARGET' not in values:
+        raise ValueError(f"No STOWY_TARGET found in {filepath}")
+
+    return StowyConfig(
+        target=Path(values['STOWY_TARGET']),
+        stow_dir=values.get('STOWY_DIR'),
+        package=values.get('STOWY_PACKAGE'),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -265,17 +283,29 @@ def scan_packages(dotfiles_root: Path) -> list:
         target_file = entry / "target.stowy"
         if not target_file.exists():
             continue
-        target = parse_target_stowy(target_file)
-        pattern = detect_pattern(entry)
-        check_paths = get_check_paths(entry, target, pattern)
-        state = detect_state(entry, target, pattern, check_paths)
+        config = parse_target_stowy(target_file)
+
+        if config.stow_dir and config.package:
+            stow_dir = dotfiles_root / config.stow_dir
+            package_path = stow_dir / config.package
+            pkg_name = config.package
+        else:
+            stow_dir = dotfiles_root
+            package_path = entry
+            pkg_name = entry.name
+
+        target = config.target
+        pattern = detect_pattern(package_path)
+        check_paths = get_check_paths(package_path, target, pattern)
+        state = detect_state(package_path, target, pattern, check_paths)
         packages.append(Package(
-            name=entry.name,
-            path=entry,
+            name=pkg_name,
+            path=package_path,
             target=target,
             pattern=pattern,
             state=state,
             check_paths=check_paths,
+            stow_dir=stow_dir,
         ))
     return packages
 
@@ -285,7 +315,7 @@ def scan_packages(dotfiles_root: Path) -> list:
 # ---------------------------------------------------------------------------
 
 def stow_package(package_path: Path, target: Path, dotfiles_root: Path,
-                 dry_run: bool = False) -> str:
+                 stow_dir: Path = None, dry_run: bool = False) -> str:
     """Run stow for a package. Returns status message."""
     name = package_path.name
     if dry_run:
@@ -295,13 +325,13 @@ def stow_package(package_path: Path, target: Path, dotfiles_root: Path,
     result = subprocess.run(
         [
             "stow",
+            "-d", str(stow_dir or dotfiles_root),
             "-t", str(target),
             "-v", name,
             "--dotfiles",
             "--ignore=^target\\.stowy$",
             "--ignore=\\.DS_Store",
         ],
-        cwd=str(dotfiles_root),
         capture_output=True,
         text=True,
     )
@@ -619,7 +649,7 @@ def execute_actions(packages: list, dotfiles_root: Path, dry_run: bool = False):
                 for cp in pkg.check_paths:
                     msg = remove_target(cp, dry_run=dry_run)
                     print(f"  {msg}")
-            msg = stow_package(pkg.path, pkg.target, dotfiles_root, dry_run=dry_run)
+            msg = stow_package(pkg.path, pkg.target, dotfiles_root, stow_dir=pkg.stow_dir, dry_run=dry_run)
             results.append(msg)
 
         elif pkg.state == PackageState.CONFLICT:
@@ -641,11 +671,11 @@ def execute_actions(packages: list, dotfiles_root: Path, dry_run: bool = False):
                 for cp in pkg.check_paths:
                     msg = remove_target(cp, dry_run=dry_run)
                     print(f"  {msg}")
-            msg = stow_package(pkg.path, pkg.target, dotfiles_root, dry_run=dry_run)
+            msg = stow_package(pkg.path, pkg.target, dotfiles_root, stow_dir=pkg.stow_dir, dry_run=dry_run)
             results.append(msg)
 
         elif pkg.state in (PackageState.STOWED, PackageState.NOT_STOWED):
-            msg = stow_package(pkg.path, pkg.target, dotfiles_root, dry_run=dry_run)
+            msg = stow_package(pkg.path, pkg.target, dotfiles_root, stow_dir=pkg.stow_dir, dry_run=dry_run)
             results.append(msg)
 
     # Summary
