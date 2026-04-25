@@ -9,6 +9,20 @@
       },
       "models": {
         "google/gemma-4-31b": {},
+        "mlx-community/Qwen3.6-27B-bf16": {
+          "name": "Qwen3.6-27B-BF16",
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        },
+        "mlx-community/Qwen3.6-35B-A3B-bf16": {
+          "name": "Qwen3.6-35B-A3B",
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        },
         "qwen/qwen3-coder-next": {
           "name": "Qwen-Coder-Next",
           "limit": {
@@ -19,13 +33,14 @@
       }
     }
   },
-  "plugin": [],
+  "plugin": [
+  ],
   "permission": {
     "bash": {
       "*": "ask",
       "git *": "allow",
-      "git commit *": "deny",
-      "git push *": "deny",
+      "git commit *": "ask",
+      "git push *": "ask",
       "grep *": "allow"
     },
     "edit": "ask",

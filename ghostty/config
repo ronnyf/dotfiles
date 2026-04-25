@@ -16,7 +16,7 @@ keybind = shift+enter=text:\x1b\r
 
 # Empty values reset the configuration to the default value
 font-family = "SauceCodePro Nerd Font"
-font-size = 15
+font-size = 13
 
 # 512MB scroll back limit (should be plenty)
 scrollback-limit = 536870912
