@@ -69,33 +69,50 @@ def package_file_name(name: str) -> str:
 # Core — target.stowy parser
 # ---------------------------------------------------------------------------
 
-def parse_target_stowy(filepath: Path) -> StowyConfig:
-    """Parse a target.stowy file and return config with target, optional stow_dir and package."""
+def parse_target_stowy(filepath: Path) -> list[StowyConfig]:
+    """Parse a target.stowy file. Each STOWY_TARGET starts a new entry.
+
+    Returns a list of StowyConfig (one per target block).
+    """
     text = filepath.read_text().strip()
-    values = {}
-    for line in text.splitlines():
-        line = line.strip()
-        if '=' not in line or line.startswith('#'):
-            continue
-        key, value = line.split('=', 1)
-        key = key.strip()
-        value = value.strip()
+    configs = []
+    current = {}
+
+    def _expand(value: str) -> str:
         if (value.startswith('"') and value.endswith('"')) or \
            (value.startswith("'") and value.endswith("'")):
             value = value[1:-1]
         value = value.replace("$HOME", str(Path.home()))
         if value.startswith("~"):
             value = str(Path.home()) + value[1:]
-        values[key] = value
+        return value
 
-    if 'STOWY_TARGET' not in values:
+    def _flush():
+        if 'STOWY_TARGET' in current:
+            configs.append(StowyConfig(
+                target=Path(current['STOWY_TARGET']),
+                stow_dir=current.get('STOWY_DIR'),
+                package=current.get('STOWY_PACKAGE'),
+            ))
+
+    for line in text.splitlines():
+        line = line.strip()
+        if '=' not in line or line.startswith('#'):
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = _expand(value.strip())
+        if key == 'STOWY_TARGET' and current.get('STOWY_TARGET'):
+            _flush()
+            current = {}
+        current[key] = value
+
+    _flush()
+
+    if not configs:
         raise ValueError(f"No STOWY_TARGET found in {filepath}")
 
-    return StowyConfig(
-        target=Path(values['STOWY_TARGET']),
-        stow_dir=values.get('STOWY_DIR'),
-        package=values.get('STOWY_PACKAGE'),
-    )
+    return configs
 
 
 # ---------------------------------------------------------------------------
@@ -283,30 +300,31 @@ def scan_packages(dotfiles_root: Path) -> list:
         target_file = entry / "target.stowy"
         if not target_file.exists():
             continue
-        config = parse_target_stowy(target_file)
+        configs = parse_target_stowy(target_file)
 
-        if config.stow_dir and config.package:
-            stow_dir = dotfiles_root / config.stow_dir
-            package_path = stow_dir / config.package
-            pkg_name = config.package
-        else:
-            stow_dir = dotfiles_root
-            package_path = entry
-            pkg_name = entry.name
+        for config in configs:
+            if config.stow_dir and config.package:
+                stow_dir = dotfiles_root / config.stow_dir
+                package_path = stow_dir / config.package
+                pkg_name = config.package
+            else:
+                stow_dir = dotfiles_root
+                package_path = entry
+                pkg_name = entry.name
 
-        target = config.target
-        pattern = detect_pattern(package_path)
-        check_paths = get_check_paths(package_path, target, pattern)
-        state = detect_state(package_path, target, pattern, check_paths)
-        packages.append(Package(
-            name=pkg_name,
-            path=package_path,
-            target=target,
-            pattern=pattern,
-            state=state,
-            check_paths=check_paths,
-            stow_dir=stow_dir,
-        ))
+            target = config.target
+            pattern = detect_pattern(package_path)
+            check_paths = get_check_paths(package_path, target, pattern)
+            state = detect_state(package_path, target, pattern, check_paths)
+            packages.append(Package(
+                name=pkg_name,
+                path=package_path,
+                target=target,
+                pattern=pattern,
+                state=state,
+                check_paths=check_paths,
+                stow_dir=stow_dir,
+            ))
     return packages
 
 

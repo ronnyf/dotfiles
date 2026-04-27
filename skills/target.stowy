@@ -1,3 +1,7 @@
 STOWY_TARGET=$HOME/.config/opencode/skills
 STOWY_DIR=skills/superpowers
 STOWY_PACKAGE=skills
+
+STOWY_TARGET=$HOME/.config/opencode/agents
+STOWY_DIR=skills/superpowers
+STOWY_PACKAGE=agents

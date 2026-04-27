@@ -27,6 +27,7 @@ GNU Stow-based dotfiles managed by `dotfiles.py` (TUI). Each top-level directory
 | `wezterm` | `$HOME/.config/wezterm` |
 | `opencode` | `$HOME/.config` |
 | `skills` | `$HOME/.config/opencode/skills` (via `STOWY_DIR=skills/superpowers`, `STOWY_PACKAGE=skills`) |
+| `agents` | `$HOME/.config/opencode/agents` (via `STOWY_DIR=skills/superpowers`, `STOWY_PACKAGE=agents`) |
 | `starship` | `$HOME/.config` |
 | `fd` | `$HOME/.config/fd` |
 | `iTerm2` | `$HOME/.config` |
@@ -45,15 +46,19 @@ The `--dotfiles` flag means files prefixed with `dot-` become dotfiles at the ta
 
 #### STOWY_DIR and STOWY_PACKAGE overrides
 
-When a package's content lives inside a nested subdirectory (e.g., a submodule), set `STOWY_DIR` and `STOWY_PACKAGE` in `target.stowy` to redirect stow's `-d` flag and package name:
+When a package's content lives inside a nested subdirectory (e.g., a submodule), set `STOWY_DIR` and `STOWY_PACKAGE` in `target.stowy` to redirect stow's `-d` flag and package name. Multiple entries are supported — each `STOWY_TARGET` starts a new block:
 
 ```bash
 STOWY_TARGET=$HOME/.config/opencode/skills
-STOWY_DIR=skills/superpowers     # stow directory (relative to dotfiles root)
-STOWY_PACKAGE=skills             # package name within stow directory
+STOWY_DIR=skills/superpowers
+STOWY_PACKAGE=skills
+
+STOWY_TARGET=$HOME/.config/opencode/agents
+STOWY_DIR=skills/superpowers
+STOWY_PACKAGE=agents
 ```
 
-This runs `stow -d skills/superpowers -t ~/.config/opencode/skills -v skills`, stowing the contents of `skills/superpowers/skills/` into the target. Both variables default to the dotfiles root and the top-level directory name respectively when omitted.
+Each block produces a separate package in the TUI. Both `STOWY_DIR` and `STOWY_PACKAGE` default to the dotfiles root and the top-level directory name respectively when omitted.
 
 ### Submodules
 
