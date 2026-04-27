@@ -5,11 +5,18 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "lm-studio(MacBook)",
       "options": {
-        "baseURL": "http://192.168.68.59:1234/v1"
+        "baseURL": "http://192.168.68.60:1234/v1"
       },
       "models": {
-        "google/gemma-4-31b": {
-          "name": "Gemma-4-31B",
+        "lmstudio-community/gemma-4-31b-it-MLX-8bit": {
+          "name": "Gemma-4-31B-8Bit",
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        },
+        "mlx-community/gemma-4-31b-bf16": {
+          "name": "Gemma-4-31B-BF16",
           "limit": {
             "context": 262144,
             "output": 65536
