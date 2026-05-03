@@ -312,6 +312,18 @@ def scan_packages(dotfiles_root: Path) -> list:
                 package_path = entry
                 pkg_name = entry.name
 
+            if not package_path.exists():
+                packages.append(Package(
+                    name=pkg_name,
+                    path=package_path,
+                    target=config.target,
+                    pattern=PackagePattern.FLAT,
+                    state=PackageState.NOT_STOWED,
+                    check_paths=[],
+                    stow_dir=stow_dir,
+                ))
+                continue
+
             target = config.target
             pattern = detect_pattern(package_path)
             check_paths = get_check_paths(package_path, target, pattern)
