@@ -5,7 +5,8 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "lm-studio(MacBook)",
       "options": {
-        "baseURL": "http://192.168.68.60:1234/v1"
+        "baseURL": "${LLM_HOST}",
+        "apiKey": "${LLM_API_KEY}"
       },
       "models": {
         "lmstudio-community/gemma-4-31b-it-MLX-8bit": {
@@ -51,12 +52,81 @@
   "permission": {
     "bash": {
       "*": "ask",
+
+      "ls*": "allow",
+      "cat*": "allow",
+      "head*": "allow",
+      "tail*": "allow",
+      "wc*": "allow",
+      "tree*": "allow",
+      "file *": "allow",
+      "stat *": "allow",
+      "pwd*": "allow",
+      "echo*": "allow",
+      "printf*": "allow",
+      "which*": "allow",
+      "type *": "allow",
+      "whoami*": "allow",
+      "date*": "allow",
+      "env*": "allow",
+      "man *": "allow",
+
+      "grep*": "allow",
+      "rg*": "allow",
+      "fd*": "allow",
+      "find *": "allow",
+      "jq*": "allow",
+      "yq*": "allow",
+      "sort*": "allow",
+      "uniq*": "allow",
+      "cut*": "allow",
+      "awk *": "allow",
+
+      "ps*": "allow",
+      "df*": "allow",
+      "du*": "allow",
+      "top*": "allow",
+
       "git *": "allow",
-      "git commit *": "ask",
-      "git push *": "ask",
-      "grep *": "allow"
+      "git commit*": "ask",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "git rebase*": "ask",
+      "git clean *": "ask",
+      "git checkout *": "ask",
+      "git restore*": "ask",
+      "git branch -d*": "ask",
+      "git branch -D*": "ask",
+      "git branch -m*": "ask",
+      "git branch -M*": "ask",
+      "git tag -d*": "ask",
+      "git stash drop*": "ask",
+      "git stash clear*": "ask",
+      "git stash pop*": "ask",
+      "git remote add*": "ask",
+      "git remote rm*": "ask",
+      "git remote remove*": "ask",
+      "git remote set-*": "ask",
+      "git worktree remove*": "ask",
+      "git merge*": "ask",
+      "git cherry-pick*": "ask",
+      "git revert*": "ask",
+      "git filter-*": "ask",
+      "git am*": "ask",
+      "git apply*": "ask",
+
+      "gh issue view*": "allow",
+      "gh issue list*": "allow",
+      "gh pr view*": "allow",
+      "gh pr list*": "allow",
+      "gh pr diff*": "allow",
+      "gh pr checks*": "allow",
+      "gh repo view*": "allow",
+      "gh run view*": "allow",
+      "gh run list*": "allow",
+      "gh release view*": "allow",
+      "gh release list*": "allow"
     },
-    "edit": "ask",
-    "write": "ask"
+    "edit": "ask"
   }
 }
