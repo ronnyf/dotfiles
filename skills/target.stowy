@@ -7,5 +7,9 @@ STOWY_DIR=skills/superpowers
 STOWY_PACKAGE=agents
 
 STOWY_TARGET=$HOME/.config/opencode/commands
+STOWY_DIR=skills/superpowers
+STOWY_PACKAGE=commands
+
+STOWY_TARGET=$HOME/.config/opencode/commands
 STOWY_DIR=skills/agentic
 STOWY_PACKAGE=commands

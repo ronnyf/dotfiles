@@ -26,9 +26,9 @@
 [submodule "zsh-plugins/fzf-tab"]
 	path = zsh-plugins/fzf-tab
 	url = git@github.com:Aloxaf/fzf-tab.git
-[submodule "skills/superpowers"]
-	path = skills/superpowers
-	url = git@github.com:obra/superpowers.git
 [submodule "skills/agentic"]
 	path = skills/agentic
 	url = git@github.com:ronnyf/agentic.git
+[submodule "skills/superpowers"]
+	path = skills/superpowers
+	url = git@github.com:obra/superpowers.git
