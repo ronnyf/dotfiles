@@ -29,6 +29,3 @@
 [submodule "skills/agentic"]
 	path = skills/agentic
 	url = git@github.com:ronnyf/agentic.git
-[submodule "skills/superpowers"]
-	path = skills/superpowers
-	url = git@github.com:obra/superpowers.git
