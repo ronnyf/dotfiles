@@ -48,8 +48,7 @@
     }
   },
   "plugin": [
-    "oh-my-opencode-slim",
-    "superpowers@git+https://github.com/obra/superpowers.git"
+    "oh-my-opencode-slim"
   ],
   "permission": {
     "bash": {
@@ -133,6 +132,5 @@
     "general": {
       "disable": true
     }
-  },
-  "lsp": true
+  }
 }
