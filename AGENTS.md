@@ -40,7 +40,7 @@ Chezmoi copies tracked files to `$HOME` as real files (no symlinks for config).
 | `dot_zshrc.alias` | `~/.zshrc.alias` | all |
 | `dot_zsh_plugins.txt` | `~/.zsh_plugins.txt` | all |
 | `dot_config/` | `~/.config/` | all (some entries macOS-only) |
-| `Library/` | `~/Library/` | macOS only |
+| `private_Library/` | `~/Library/` | macOS only |
 | `dot_claude/symlink_skills.tmpl` | `~/.claude/skills` → `~/.agents/skills` | all |
 
 ### Bootstrap (new machine)
@@ -67,8 +67,10 @@ All scripts live flat in `.chezmoiscripts/`; subdirectories are not scanned.
 | `run_once_before_install-external-repos.sh` | Once | Clone neovim, TPM, superpowers, agentic |
 | `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
 | `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `yay -S` |
+| `run_onchange_after_set-macos-defaults.sh` | Script changes | Keyboard, Finder, Dock, screenshot defaults |
+| `run_onchange_after_disable-macos-animations.sh` | Script changes | Disable macOS UI animations |
+| `run_onchange_after_init-macos-machine.sh.tmpl` | Script changes | Set hostname from `machineName` |
 | `run_onchange_after_sync-agent-skills.sh` | Script changes / manual | Create `~/.agents/` symlinks |
-| macOS defaults scripts | Script changes | `defaults write` calls |
 
 ### Agent skills
 
