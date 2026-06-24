@@ -2,7 +2,7 @@
 set -e
 
 [[ -d "$HOME/.agents/repos/superpowers" && -d "$HOME/.agents/repos/agentic" ]] \
-  || { echo "ERROR: repos not cloned. Run: chezmoi-clone-repos"; exit 1; }
+  || { echo "WARNING: repos not cloned yet. Run: chezmoi-clone-repos then sync-skills"; exit 0; }
 
 shopt -s nullglob
 mkdir -p "$HOME/.agents/skills" "$HOME/.agents/agents" "$HOME/.agents/commands"
