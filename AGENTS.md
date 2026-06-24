@@ -1,96 +1,94 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code and other agents working in this repository.
 
 ## Commands
 
 ```bash
-# Install/update all package symlinks
-python3 dotfiles.py              # interactive TUI
-python3 dotfiles.py --dry-run    # preview only
+# Apply dotfiles to $HOME
+chezmoi apply
+
+# Pull latest and apply
+chezmoi update --verbose
+
+# Preview changes before applying
+chezmoi diff
+
+# Edit a tracked file and apply
+chezmoi edit --apply ~/.zshrc
+
+# Re-add a file after editing it in-place
+chezmoi add ~/.zshrc
+
+# Re-sync agent skills after git pull in a skills repo
+sync-skills
+
+# Manually clone external repos (if SSH was unavailable at bootstrap)
+chezmoi-clone-repos
 ```
 
 ## Architecture
 
-GNU Stow-based dotfiles managed by `dotfiles.py` (TUI). Each top-level directory is a stow package containing a `target.stowy` file that declares where its contents should be symlinked.
+Chezmoi-managed dotfiles. Source dir: `~/.dotfiles` (this repo).
+Chezmoi copies tracked files to `$HOME` as real files (no symlinks for config).
 
-### Package → Target Mapping
+### Source layout
 
-| Package | Stow Target |
-|---------|------------|
-| `zshrc` | `$HOME` (dot-zshrc, dot-zshrc.alias) |
-| `zsh-plugins` | `$HOME/.config/zsh-plugins` |
-| `neovim` | `$HOME/.config` (kickstart.nvim fork submodule) |
-| `tmux` | `$HOME/.config/tmux` |
-| `ghostty` | `$HOME/.config/ghostty` |
-| `alacritty` | `$HOME/.config/alacritty` |
-| `wezterm` | `$HOME/.config/wezterm` |
-| `opencode` | `$HOME/.config` (stows the `opencode/opencode/` payload — `opencode.json`, `package.json` — into `$HOME/.config/opencode/`) |
-| `skills` | Multi-block `target.stowy`; stows the `superpowers` and `agentic` submodules into `$HOME/.config/opencode/{skills,agents,commands}` (see STOWY_DIR section) |
-| `starship` | `$HOME/.config` |
-| `fd` | `$HOME/.config/fd` |
-| `iTerm2` | `$HOME/.config` |
-| `xcode-themes` | `$HOME/Library/Developer/Xcode/UserData` |
+| Source path | Deployed to | OS |
+|---|---|---|
+| `dot_zshrc` | `~/.zshrc` | all |
+| `dot_zshrc.alias` | `~/.zshrc.alias` | all |
+| `dot_zsh_plugins.txt` | `~/.zsh_plugins.txt` | all |
+| `dot_config/` | `~/.config/` | all (some entries macOS-only) |
+| `Library/` | `~/Library/` | macOS only |
+| `dot_claude/symlink_skills.tmpl` | `~/.claude/skills` → `~/.agents/skills` | all |
 
-### How stowy Works
-
-`dotfiles.py` is the **only** supported way to stow. Never invoke `stow` directly, and never hand-create symlinks to emulate a stow result — always run `dotfiles.py`.
-
-1. Scans **every** top-level directory for a `target.stowy` file (so one run processes all packages, and a single `target.stowy` can declare multiple packages)
-2. Parses `target.stowy` to read `STOWY_TARGET=<path>` and optional `STOWY_DIR` / `STOWY_PACKAGE` overrides
-3. Creates target directory if missing
-4. Runs `stow -d <stow_dir> -t <target> -v <package> --dotfiles --no-folding --ignore=^target\.stowy$ --ignore=\.DS_Store`
-
-The `--dotfiles` flag means files prefixed with `dot-` become dotfiles at the target (e.g., `dot-zshrc` → `.zshrc`). `--no-folding` keeps target subdirectories as real directories with per-file symlinks, so multiple packages can merge into the same target dir.
-
-#### STOWY_DIR and STOWY_PACKAGE overrides
-
-When a package's content lives inside a nested subdirectory (e.g., a submodule), set `STOWY_DIR` and `STOWY_PACKAGE` in `target.stowy` to redirect stow's `-d` flag and package name. Multiple entries are supported — each `STOWY_TARGET` starts a new block. The live `skills/target.stowy` merges two submodules into `~/.config/opencode/`:
+### Bootstrap (new machine)
 
 ```bash
-STOWY_TARGET=$HOME/.config/opencode/skills    # superpowers skills
-STOWY_DIR=skills/superpowers
-STOWY_PACKAGE=skills
+# macOS
+brew install chezmoi
+git clone https://github.com/ronnyf/dotfiles.git ~/.dotfiles
+chezmoi apply --source ~/.dotfiles
 
-STOWY_TARGET=$HOME/.config/opencode/skills    # agentic skills (merges into same dir)
-STOWY_DIR=skills/agentic
-STOWY_PACKAGE=skills
-
-STOWY_TARGET=$HOME/.config/opencode/agents    # agentic agents
-STOWY_DIR=skills/agentic
-STOWY_PACKAGE=agents
-
-STOWY_TARGET=$HOME/.config/opencode/commands  # agentic commands
-STOWY_DIR=skills/agentic
-STOWY_PACKAGE=commands
+# Linux (CachyOS/Arch)
+sudo pacman -S chezmoi git
+git clone https://github.com/ronnyf/dotfiles.git ~/.dotfiles
+chezmoi apply --source ~/.dotfiles
 ```
 
-Each block produces a separate package in the TUI. Both `STOWY_DIR` and `STOWY_PACKAGE` default to the dotfiles root and the top-level directory name respectively when omitted. Note: agentic — not superpowers — is the source for `agents` and `commands` (superpowers has no `agents` dir).
+### Scripts (in `.chezmoiscripts/`)
 
-### Submodules
+All scripts live flat in `.chezmoiscripts/`; subdirectories are not scanned.
 
-Several packages contain git submodules (see `.gitmodules`):
-- `neovim/nvim` — kickstart.nvim fork (`git@github.com:ronnyf/kickstart.nvim.git`)
-- `skills/superpowers` — superpowers skills (`git@github.com:obra/superpowers.git`), stowed to `~/.config/opencode/skills/`
-- `skills/agentic` — agentic plugin skills/agents/commands (`git@github.com:ronnyf/agentic.git`), stowed to `~/.config/opencode/{skills,agents,commands}/`
-- `tmux/plugins/tpm`, `tmux/plugins/tmux` (dracula), `tmux/plugins/tmuxifier`, `tmux/plugins/vim-tmux-navigator`
-- `zsh-plugins/fzf-tab`, `zsh-plugins/zsh-autosuggestions`, `zsh-plugins/zsh-syntax-highlighting`
+| Script | When | What |
+|---|---|---|
+| `run_once_before_00-unstow.sh` | Once | Remove stow symlinks (migration) |
+| `run_once_before_install-external-repos.sh` | Once | Clone neovim, TPM, superpowers, agentic |
+| `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
+| `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `yay -S` |
+| `run_onchange_after_sync-agent-skills.sh` | Script changes / manual | Create `~/.agents/` symlinks |
+| macOS defaults scripts | Script changes | `defaults write` calls |
 
-## Shell Environment
+### Agent skills
 
-`zshrc/dot-zshrc` detects work vs. home via a `$HOME/.iamatwork` flag file:
-- **Work mode**: device compute aliases (dc, dcs, dcmake-*), AWS blobby
-- **Home mode**: ESP32/IDF development aliases (idfenv, ib, ic, etc.)
+Canonical location: `~/.agents/skills/`. Both Claude Code (`~/.claude/skills`) and
+OpenCode (`~/.config/opencode/{skills,agents,commands}`) are symlinked there.
 
-Aliases are defined in `zshrc/dot-zshrc.alias`, sourced conditionally.
+Skills come from two external repos (cloned by `run_once_before_install-external-repos.sh`):
+- `~/.agents/repos/superpowers/` — upstream skills
+- `~/.agents/repos/agentic/` — personal fork (wins on name collision)
 
-## Naming Conventions
+After `git pull` in either repo, run `sync-skills` to update symlinks.
 
-- Config files: snake_case with appropriate extensions (`.lua`, `.zsh`, `.conf`, `.toml`)
-- Stow payload files: `dot-` prefix (e.g., `dot-zshrc`, `dot-p10k.zsh`)
+### Day-to-day sync
 
-## Important Notes
+```bash
+# On this machine after editing
+chezmoi cd
+git add -A && git commit -m "update dotfiles" && git push
+exit
 
-- Changes here affect the user's live environment once stowed
-- `neovim/nvim` is a submodule pointing to a personal kickstart.nvim fork — do not restructure it
-- Submodule directories (tmux/plugins, zsh-plugins) are managed upstream; edit only top-level config files
+# On other machines
+chezmoi update --verbose
+```
