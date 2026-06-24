@@ -1,0 +1,21 @@
+# Core tools
+brew "chezmoi"
+brew "antidote"
+brew "fzf"
+brew "fd"
+brew "bat"
+brew "ripgrep"
+brew "starship"
+brew "zoxide"
+brew "fnm"
+brew "pyenv"
+brew "uv"
+brew "tmux"
+brew "neovim"
+brew "git"
+brew "openssh"
+
+# Add additional formulae and casks as needed:
+# cask "ghostty"
+# cask "alacritty"
+# cask "wezterm"

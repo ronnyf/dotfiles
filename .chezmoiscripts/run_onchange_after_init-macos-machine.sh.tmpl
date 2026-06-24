@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+[[ "$(uname -s)" == "Darwin" ]] || exit 0
+set -e
+# Set hostname from chezmoi machineName
+sudo scutil --set ComputerName {{ .machineName | quote }}
+sudo scutil --set HostName {{ .machineName | quote }}
+sudo scutil --set LocalHostName {{ .machineName | quote }}

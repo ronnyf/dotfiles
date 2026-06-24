@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Brewfile checksum: {{ include "Brewfile" | sha256sum }}
+[[ "$(uname -s)" == "Darwin" ]] || exit 0
+set -e
+
+# Locate Homebrew
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  brew_bin=/opt/homebrew/bin/brew
+elif [[ -x /usr/local/bin/brew ]]; then
+  brew_bin=/usr/local/bin/brew
+else
+  echo "ERROR: Homebrew not found" >&2; exit 1
+fi
+
+brewfile="{{ joinPath .chezmoi.sourceDir "Brewfile" }}"
+"$brew_bin" bundle check --no-upgrade --file "$brewfile" >/dev/null 2>&1 \
+  || "$brew_bin" bundle install --no-upgrade --file "$brewfile"
