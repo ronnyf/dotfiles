@@ -1,0 +1,5 @@
+{{- $machineName := promptStringOnce . "machineName" "Machine name" .chezmoi.hostname -}}
+sourceDir = "{{ .chezmoi.homeDir }}/.dotfiles"
+
+[data]
+    machineName = {{ $machineName | quote }}

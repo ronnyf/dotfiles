@@ -1,0 +1,27 @@
+README.md
+AGENTS.md
+CONTEXT.md
+docs/
+Brewfile
+packages.txt
+dotfiles.py
+import.py
+test_dotfiles.py
+__pycache__/
+*.pyc
+.gitmodules
+# opencode artefacts not tracked by chezmoi
+dot_config/opencode/opencode.json.bak
+dot_config/opencode/package-lock.json
+dot_config/opencode/node_modules
+dot_config/opencode/agents
+dot_config/opencode/commands
+dot_config/opencode/skills
+# machine-local shell extras
+.zshrc.work
+.zshrc.home
+.zshrc.claude
+{{- if ne .chezmoi.os "darwin" }}
+Library/**
+.config/iTerm2/**
+{{- end }}
