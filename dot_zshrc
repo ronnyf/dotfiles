@@ -58,12 +58,21 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste up-line-or-search down-line-or-search expand-or-complete accept-line push-line-or-edit)
 
-source $HOME/.config/zsh-plugins/fzf-tab/fzf-tab.plugin.zsh
-source $HOME/.config/zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-source $HOME/.config/zsh-plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Antidote plugin manager
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    for _ap in /opt/homebrew /usr/local; do
+        [[ -f "$_ap/opt/antidote/share/antidote/antidote.zsh" ]] && {
+            source "$_ap/opt/antidote/share/antidote/antidote.zsh"; break
+        }
+    done
+else
+    [[ -f /usr/share/zsh/plugins/antidote/antidote.zsh ]] \
+        && source /usr/share/zsh/plugins/antidote/antidote.zsh
+fi
+antidote load
 
 source <(zoxide init zsh)
-source <(~/.config/tmux/plugins/tmuxifier/bin/tmuxifier init -)
+source <(~/.tmux/plugins/tmuxifier/bin/tmuxifier init -)
 source <(fzf --zsh)
 source <(pyenv init -)
 # For sh/bash/zsh/ash/dash/pdksh
