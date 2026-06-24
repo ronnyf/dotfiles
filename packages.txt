@@ -1,0 +1,16 @@
+# Arch/CachyOS package list
+chezmoi
+antidote
+fzf
+fd
+bat
+ripgrep
+starship
+zoxide
+fnm
+pyenv
+uv
+tmux
+neovim
+git
+openssh
