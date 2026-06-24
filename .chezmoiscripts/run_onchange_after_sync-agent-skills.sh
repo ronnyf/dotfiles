@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+
+[[ -d "$HOME/.agents/repos/superpowers" && -d "$HOME/.agents/repos/agentic" ]] \
+  || { echo "ERROR: repos not cloned. Run: chezmoi-clone-repos"; exit 1; }
+
+shopt -s nullglob
+mkdir -p "$HOME/.agents/skills" "$HOME/.agents/agents" "$HOME/.agents/commands"
+
+# superpowers skills (runs first; agentic overrides conflicts)
+for dir in "$HOME/.agents/repos/superpowers/skills/"/*/; do
+  name=$(basename "${dir%/}")
+  [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
+    && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
+  ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
+done
+
+# agentic skills (wins over superpowers on name collision — intentional)
+for dir in "$HOME/.agents/repos/agentic/skills/"/*/; do
+  name=$(basename "${dir%/}")
+  [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
+    && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
+  ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
+done
+
+# agentic agents
+[[ -d "$HOME/.agents/repos/agentic/agents" ]] \
+  || { echo "WARN: agentic/agents dir missing"; }
+for f in "$HOME/.agents/repos/agentic/agents/"*.md; do
+  ln -sfn "$f" "$HOME/.agents/agents/$(basename "$f")"
+done
+
+# agentic commands
+[[ -d "$HOME/.agents/repos/agentic/commands" ]] \
+  || { echo "WARN: agentic/commands dir missing"; }
+for f in "$HOME/.agents/repos/agentic/commands/"*.md; do
+  ln -sfn "$f" "$HOME/.agents/commands/$(basename "$f")"
+done
+
+echo "Agent skills synced: $(ls "$HOME/.agents/skills" | wc -l | tr -d ' ') skills"
