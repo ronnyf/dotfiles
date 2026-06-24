@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-# SSH pre-check: GitHub exits 1 on success, 255 on connection/auth failure
-ssh -T git@github.com 2>/dev/null; _ssh_exit=$?
+# SSH pre-check: GitHub exits 1 on success, 255 on connection/auth failure.
+# Use if/else to capture exit code without triggering set -e on GitHub's non-zero success.
+if ssh -T git@github.com 2>/dev/null; then
+  _ssh_exit=0
+else
+  _ssh_exit=$?
+fi
 if [[ $_ssh_exit -eq 255 ]]; then
   echo "WARNING: SSH auth unavailable. Set up SSH keys, then run: chezmoi-clone-repos"
   exit 0
