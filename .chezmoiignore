@@ -21,12 +21,6 @@ dot_config/opencode/skills
 .zshrc.work
 .zshrc.home
 .zshrc.claude
-# Legacy stow package directories (present during migration, removed in Task 11)
-tmux
-neovim
-skills
-zsh-plugins
-opencode
 {{- if ne .chezmoi.os "darwin" }}
 Library/**
 .config/iTerm2/**

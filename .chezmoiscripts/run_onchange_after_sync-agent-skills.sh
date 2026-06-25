@@ -7,20 +7,14 @@ set -e
 shopt -s nullglob
 mkdir -p "$HOME/.agents/skills" "$HOME/.agents/agents" "$HOME/.agents/commands"
 
-# superpowers skills (runs first; agentic overrides conflicts)
-for dir in "$HOME/.agents/repos/superpowers/skills/"/*/; do
-  name=$(basename "${dir%/}")
-  [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
-    && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
-  ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
-done
-
-# agentic skills (wins over superpowers on name collision — intentional)
-for dir in "$HOME/.agents/repos/agentic/skills/"/*/; do
-  name=$(basename "${dir%/}")
-  [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
-    && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
-  ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
+# skills: superpowers first, agentic second — agentic wins on name collision (intentional)
+for repo in superpowers agentic; do
+  for dir in "$HOME/.agents/repos/$repo/skills/"/*/; do
+    name=$(basename "${dir%/}")
+    [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
+      && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
+    ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
+  done
 done
 
 # agentic agents
@@ -37,4 +31,5 @@ for f in "$HOME/.agents/repos/agentic/commands/"*.md; do
   ln -sfn "$f" "$HOME/.agents/commands/$(basename "$f")"
 done
 
-echo "Agent skills synced: $(ls "$HOME/.agents/skills" | wc -l | tr -d ' ') skills"
+_synced=("$HOME/.agents/skills"/*/)
+echo "Agent skills synced: ${#_synced[@]} skills"
