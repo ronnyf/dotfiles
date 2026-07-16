@@ -1,6 +1,6 @@
 # Arch/CachyOS package list
 chezmoi
-antidote
+zsh-antidote
 fzf
 fd
 bat

@@ -59,7 +59,7 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste up-line-or-search down-line-or-search expand-or-complete accept-line push-line-or-edit)
 
 # Antidote plugin manager — check known install paths (no subprocess fork)
-for _ap in /opt/homebrew/opt/antidote /usr/local/opt/antidote /usr/share/zsh/plugins/antidote; do
+for _ap in /opt/homebrew/opt/antidote /usr/local/opt/antidote /usr/share/zsh-antidote; do
     [[ -f "$_ap/share/antidote/antidote.zsh" ]] && { source "$_ap/share/antidote/antidote.zsh"; break; }
     [[ -f "$_ap/antidote.zsh" ]] && { source "$_ap/antidote.zsh"; break; }
 done
