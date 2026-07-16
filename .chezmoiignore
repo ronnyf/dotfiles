@@ -10,6 +10,16 @@ test_dotfiles.py
 __pycache__/
 *.pyc
 .gitmodules
+# leftover stow package dirs from pre-chezmoi layout
+neovim/
+nvim/
+omz/
+omz_plugins/
+omz_themes/
+opencode/
+skills/
+tmux/
+zsh-plugins/
 # opencode artefacts not tracked by chezmoi
 dot_config/opencode/opencode.json.bak
 dot_config/opencode/package-lock.json
