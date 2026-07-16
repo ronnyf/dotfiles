@@ -3,10 +3,10 @@
 [[ "$(uname -s)" == "Linux" ]] || exit 0
 set -e
 
-if ! command -v yay >/dev/null 2>&1; then
-  echo "ERROR: yay not found. On vanilla Arch, install yay from the AUR first:"
+if ! command -v paru >/dev/null 2>&1; then
+  echo "ERROR: paru not found. On vanilla Arch, install paru from the AUR first:"
   echo "  sudo pacman -S --needed git base-devel"
-  echo "  git clone https://aur.archlinux.org/yay.git /tmp/yay && cd /tmp/yay && makepkg -si"
+  echo "  git clone https://aur.archlinux.org/paru.git /tmp/paru && cd /tmp/paru && makepkg -si"
   exit 1
 fi
 
@@ -16,4 +16,4 @@ pkgs=()
 while IFS= read -r line; do
   [[ "$line" =~ ^#|^$ ]] || pkgs+=("$line")
 done < "$pkglist"
-yay -S --needed --noconfirm "${pkgs[@]}"
+paru -S --needed --noconfirm "${pkgs[@]}"

@@ -33,7 +33,7 @@ The git repository that chezmoi manages. Configured to be the existing `~/.dotfi
 A chezmoi script that executes exactly once per machine (tracked by a hash of the script's contents). Used for cloning external repos (neovim, superpowers, agentic).
 
 **OS guard**
-A condition at the top of a chezmoi script that detects the current operating system (`darwin` for macOS, `linux` for Linux) and exits early when the script does not apply to that platform. macOS-specific scripts (Homebrew, macOS defaults, xcode-themes) carry Darwin guards; Linux-specific scripts (pacman/yay) carry Linux guards.
+A condition at the top of a chezmoi script that detects the current operating system (`darwin` for macOS, `linux` for Linux) and exits early when the script does not apply to that platform. macOS-specific scripts (Homebrew, macOS defaults, xcode-themes) carry Darwin guards; Linux-specific scripts (pacman/paru) carry Linux guards.
 
 **run_onchange_ script**
-A chezmoi script that re-executes whenever its content (or an embedded hash) changes. Used for Homebrew bundle installs (re-runs when `Brewfile` changes), pacman/yay installs (re-runs when the package list changes), and macOS defaults.
+A chezmoi script that re-executes whenever its content (or an embedded hash) changes. Used for Homebrew bundle installs (re-runs when `Brewfile` changes), pacman/paru installs (re-runs when the package list changes), and macOS defaults.

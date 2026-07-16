@@ -123,10 +123,10 @@ brew bundle install --no-upgrade --file "$(chezmoi source-path)/Brewfile"
 
 ### CachyOS / Arch — packages.txt
 
-`packages.txt` at the repo root lists pacman/yay packages. Edit it, then run:
+`packages.txt` at the repo root lists pacman/paru packages. Edit it, then run:
 
 ```bash
-chezmoi apply   # re-runs yay automatically when packages.txt changes
+chezmoi apply   # re-runs paru automatically when packages.txt changes
 ```
 
 ---
@@ -156,7 +156,7 @@ All scripts in `.chezmoiscripts/` run automatically on `chezmoi apply` when trig
 | `run_once_before_00-unstow.sh` | Once, first apply | Removes old stow symlinks (migration only) |
 | `run_once_before_install-external-repos.sh` | Once per machine | Clones neovim fork, TPM, superpowers, agentic |
 | `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
-| `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `yay -S` (Linux only) |
+| `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `paru -S` (Linux only) |
 | `run_onchange_after_set-macos-defaults.sh` | Script changes | Keyboard, Finder, Dock, screenshot defaults |
 | `run_onchange_after_disable-macos-animations.sh` | Script changes | Disables macOS UI animations |
 | `run_onchange_after_init-macos-machine.sh.tmpl` | Script changes | Sets hostname from machine name |

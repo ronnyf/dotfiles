@@ -66,7 +66,7 @@ All scripts live flat in `.chezmoiscripts/`; subdirectories are not scanned.
 | `run_once_before_00-unstow.sh` | Once | Remove stow symlinks (migration) |
 | `run_once_before_install-external-repos.sh` | Once | Clone neovim, TPM, superpowers, agentic |
 | `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
-| `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `yay -S` |
+| `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `paru -S` |
 | `run_onchange_after_set-macos-defaults.sh` | Script changes | Keyboard, Finder, Dock, screenshot defaults |
 | `run_onchange_after_disable-macos-animations.sh` | Script changes | Disable macOS UI animations |
 | `run_onchange_after_init-macos-machine.sh.tmpl` | Script changes | Set hostname from `machineName` |
