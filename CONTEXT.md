@@ -24,7 +24,7 @@ A stow package whose payload is or contains a git submodule pointing to an exter
 A tool that auto-installs upstream plugin code at runtime, without the plugin code being tracked in the dotfiles repo. TPM manages tmux plugins; a zsh plugin manager (e.g. antidote) manages zsh plugins; lazy.nvim manages neovim plugins.
 
 **canonical skills location**
-`~/.agents/skills/` — the single source of truth for agent skill files, per the Agent Skills spec. Agent tools that use a different path (Claude Code at `~/.claude/skills`, OpenCode at `~/.config/opencode/skills`) get symlinks pointing here.
+`~/.agents/skills/` — the single source of truth for agent skill files, per the Agent Skills spec. OpenCode (`~/.config/opencode/skills`) gets a symlink pointing here. Claude Code loads the agentic skills from the plugin rather than symlinking.
 
 **chezmoi source dir**
 The git repository that chezmoi manages. Configured to be the existing `~/.dotfiles` repo (not the default `~/.local/share/chezmoi`). chezmoi reads this dir to apply files to the home directory.

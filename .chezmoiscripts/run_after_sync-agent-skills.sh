@@ -9,12 +9,30 @@ set -e
 # Submodules matter too: 9 agentic skills are symlinks into third-party/, dangling when uninit.
 for repo in superpowers agentic; do
   d="$HOME/.agents/repos/$repo"
-  git -C "$d" fetch --quiet origin 2>/dev/null || continue
-  behind=$(git -C "$d" rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
-  [[ "$behind" -gt 0 ]] \
-    && echo "WARNING: $repo is $behind commits behind origin/main — run: git -C $d pull --ff-only"
+
+  # Local check first — it needs no network, and the machine most likely to have dangling
+  # submodule skills is a fresh one where fetch fails for lack of SSH auth.
   if [[ -f "$d/.gitmodules" ]] && git -C "$d" submodule status 2>/dev/null | grep -q '^-'; then
     echo "WARNING: $repo has uninitialized submodules — run: git -C $d submodule update --init --recursive"
+  fi
+
+  # BatchMode + ConnectTimeout: ssh reads passphrase/host confirmation straight from /dev/tty,
+  # so redirecting stderr alone would let `chezmoi apply` block forever with the reason hidden.
+  GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=5' \
+    git -C "$d" fetch --quiet origin 2>/dev/null || continue
+
+  # Resolve the default branch instead of assuming main; a missing origin/HEAD must announce
+  # itself rather than silently reporting "0 behind" and disabling this guard.
+  if ! upstream=$(git -C "$d" symbolic-ref -q --short refs/remotes/origin/HEAD); then
+    echo "WARNING: $repo has no origin/HEAD — run: git -C $d remote set-head origin -a"
+    continue
+  fi
+  behind=$(git -C "$d" rev-list --count "HEAD..$upstream" 2>/dev/null || echo 0)
+  ahead=$(git -C "$d" rev-list --count "$upstream..HEAD" 2>/dev/null || echo 0)
+  if [[ "$behind" -gt 0 && "$ahead" -gt 0 ]]; then
+    echo "WARNING: $repo has diverged from $upstream ($ahead ahead, $behind behind) — reconcile manually"
+  elif [[ "$behind" -gt 0 ]]; then
+    echo "WARNING: $repo is $behind commits behind $upstream — run: git -C $d pull --ff-only"
   fi
 done
 

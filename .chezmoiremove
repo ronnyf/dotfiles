@@ -1,1 +1,5 @@
-.claude/skills
+{{- /* Only reclaim ~/.claude/skills when it is still the symlink this repo used to create.
+       A real directory there is a user's personal Claude Code skills dir — chezmoi would
+       recursively delete it, silently and on every machine, with no prompt. */ -}}
+{{- $p := joinPath .chezmoi.homeDir ".claude" "skills" -}}
+{{ if and (lstat $p) (eq (lstat $p).type "symlink") }}.claude/skills{{ end }}

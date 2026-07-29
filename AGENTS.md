@@ -41,7 +41,7 @@ Chezmoi copies tracked files to `$HOME` as real files (no symlinks for config).
 | `dot_zsh_plugins.txt` | `~/.zsh_plugins.txt` | all |
 | `dot_config/` | `~/.config/` | all (some entries macOS-only) |
 | `private_Library/` | `~/Library/` | macOS only |
-| `dot_claude/symlink_skills.tmpl` | `~/.claude/skills` → `~/.agents/skills` | all |
+| `.chezmoiremove` | removes a stale `~/.claude/skills` symlink (skipped if it is a real dir) | all |
 
 ### Bootstrap (new machine)
 
@@ -74,8 +74,12 @@ All scripts live flat in `.chezmoiscripts/`; subdirectories are not scanned.
 
 ### Agent skills
 
-Canonical location: `~/.agents/skills/`. Both Claude Code (`~/.claude/skills`) and
-OpenCode (`~/.config/opencode/{skills,agents,commands}`) are symlinked there.
+Canonical location: `~/.agents/skills/`, symlinked to by OpenCode
+(`~/.config/opencode/{skills,agents,commands}`).
+
+Claude Code no longer symlinks here — it loads the agentic skills from the plugin instead.
+`~/.claude/skills` pointing at this dir made Claude Code register every agentic skill twice,
+bare and `agentic:`-namespaced, from two clones with divergent bodies.
 
 Skills come from two external repos (cloned by `run_once_before_install-external-repos.sh`):
 - `~/.agents/repos/superpowers/` — upstream skills

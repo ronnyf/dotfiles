@@ -134,7 +134,8 @@ chezmoi apply   # re-runs paru automatically when packages.txt changes
 ## Agent skills
 
 Skills from the `superpowers` and `agentic` repos live at `~/.agents/skills/`.  
-Both Claude Code (`~/.claude/skills`) and OpenCode (`~/.config/opencode/skills`) symlink there.
+OpenCode (`~/.config/opencode/skills`) symlinks there. Claude Code loads the agentic skills
+from the plugin instead — see ronnyf/dotfiles#2.
 
 ### Update skills
 

@@ -31,6 +31,6 @@ mkdir -p "$HOME/.agents/repos" "$HOME/.agents/skills" \
 
 # agentic skills
 [[ -d "$HOME/.agents/repos/agentic" ]] \
-  || git clone git@github.com:ronnyf/agentic.git "$HOME/.agents/repos/agentic"
+  || git clone --recurse-submodules git@github.com:ronnyf/agentic.git "$HOME/.agents/repos/agentic"
 
 echo "External repos ready."
