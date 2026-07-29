@@ -39,14 +39,16 @@ done
 shopt -s nullglob
 mkdir -p "$HOME/.agents/skills" "$HOME/.agents/agents" "$HOME/.agents/commands"
 
-# skills: superpowers first, agentic second — agentic wins on name collision (intentional)
-for repo in superpowers agentic; do
-  for dir in "$HOME/.agents/repos/$repo/skills/"/*/; do
-    name=$(basename "${dir%/}")
-    [[ -d "$HOME/.agents/skills/$name" && ! -L "$HOME/.agents/skills/$name" ]] \
-      && { echo "ERROR: real dir at $HOME/.agents/skills/$name"; exit 1; }
-    ln -sfn "${dir%/}" "$HOME/.agents/skills/$name"
-  done
+# Skills are NOT symlinked here any more. Both repos register their own skills directory with
+# opencode via a plugin config hook (superpowers@git+…, and ~/.agents/repos/agentic), so a
+# symlink farm made every skill reachable from two paths with undefined precedence — the same
+# double-registration that had to be fixed on the Claude Code side. Retire stale links so the
+# plugin is the single source; real directories here (skills that live nowhere else) are kept.
+for link in "$HOME/.agents/skills"/*; do
+  [[ -L "$link" ]] || continue
+  case "$(readlink "$link")" in
+    "$HOME/.agents/repos/"*) rm -f "$link" ;;
+  esac
 done
 
 # agentic agents
@@ -63,5 +65,5 @@ for f in "$HOME/.agents/repos/agentic/commands/"*.md; do
   ln -sfn "$f" "$HOME/.agents/commands/$(basename "$f")"
 done
 
-_synced=("$HOME/.agents/skills"/*/)
-echo "Agent skills synced: ${#_synced[@]} skills"
+_local=("$HOME/.agents/skills"/*/)
+echo "Agent skills: ${#_local[@]} local (plugin-served skills are not linked here)"
