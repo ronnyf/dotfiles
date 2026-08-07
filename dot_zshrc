@@ -33,9 +33,9 @@ bindkey "^[[1;3C" forward-word
 bindkey "^[[1;3D" backward-word
 
 EDITOR='nvim'
-HISTSIZE=10000
+HISTSIZE=100000
 HISTFILE=~/.zsh_history
-SAVEHIST=100000
+SAVEHIST=$HISTSIZE
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
