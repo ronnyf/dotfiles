@@ -35,7 +35,7 @@ git clone git@github.com:ronnyf/dotfiles.git ~/.dotfiles
 chezmoi apply --source ~/.dotfiles
 ```
 
-> **If SSH isn't set up yet on a fresh machine:** the clone script will print a warning and skip cloning the external repos (neovim, superpowers, agentic). Set up your SSH key, then run `chezmoi-clone-repos` to finish.
+> **If SSH isn't set up yet on a fresh machine:** the clone script will print a warning and skip cloning the external repos (neovim, TPM). Set up your SSH key, then run `chezmoi-clone-repos` to finish.
 
 ---
 
@@ -131,21 +131,6 @@ chezmoi apply   # re-runs paru automatically when packages.txt changes
 
 ---
 
-## Agent skills
-
-Skills from the `superpowers` and `agentic` repos live at `~/.agents/skills/`.  
-OpenCode (`~/.config/opencode/skills`) symlinks there. Claude Code loads the agentic skills
-from the plugin instead — see ronnyf/dotfiles#2.
-
-### Update skills
-
-```bash
-cd ~/.agents/repos/agentic && git pull && sync-skills
-cd ~/.agents/repos/superpowers && git pull && sync-skills
-```
-
-`sync-skills` re-creates the per-skill symlinks in `~/.agents/skills/` after any repo update.
-
 ---
 
 ## Scripts reference
@@ -155,20 +140,19 @@ All scripts in `.chezmoiscripts/` run automatically on `chezmoi apply` when trig
 | Script | Trigger | What it does |
 |---|---|---|
 | `run_once_before_00-unstow.sh` | Once, first apply | Removes old stow symlinks (migration only) |
-| `run_once_before_install-external-repos.sh` | Once per machine | Clones neovim fork, TPM, superpowers, agentic |
+| `run_once_before_install-external-repos.sh` | Once per machine | Clones neovim fork, TPM |
 | `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
 | `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `paru -S` (Linux only) |
 | `run_onchange_after_set-macos-defaults.sh` | Script changes | Keyboard, Finder, Dock, screenshot defaults |
 | `run_onchange_after_disable-macos-animations.sh` | Script changes | Disables macOS UI animations |
 | `run_onchange_after_init-macos-machine.sh.tmpl` | Script changes | Sets hostname from machine name |
-| `run_onchange_after_sync-agent-skills.sh` | Script changes | Creates `~/.agents/` skill symlinks |
+
 
 ---
 
 ## Useful aliases
 
 ```bash
-sync-skills           # Re-sync ~/.agents/ symlinks after git pull in a skills repo
 chezmoi-clone-repos   # Manually clone external repos (when SSH was unavailable at bootstrap)
 ```
 
@@ -179,8 +163,7 @@ chezmoi-clone-repos   # Manually clone external repos (when SSH was unavailable 
 **`chezmoi apply` can't find sourceDir**  
 Run with explicit flag: `chezmoi apply --source ~/.dotfiles`
 
-**Skills are missing or stale**  
-Run `chezmoi-clone-repos` (repos never cloned) or `sync-skills` (repos exist, symlinks stale).
+
 
 **tmux plugins not installed**  
 Open tmux and press `Ctrl-S I` once to trigger TPM.

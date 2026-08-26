@@ -14,7 +14,6 @@ if [[ $_ssh_exit -eq 255 ]]; then
 fi
 
 mkdir -p "$HOME/.agents/repos" "$HOME/.agents/skills" \
-         "$HOME/.agents/agents" "$HOME/.agents/commands" \
          "$HOME/.tmux/plugins"
 
 # neovim config fork (skip if already present)
@@ -24,13 +23,5 @@ mkdir -p "$HOME/.agents/repos" "$HOME/.agents/skills" \
 # TPM
 [[ -d "$HOME/.tmux/plugins/tpm" ]] \
   || git clone git@github.com:tmux-plugins/tpm.git "$HOME/.tmux/plugins/tpm"
-
-# superpowers skills
-[[ -d "$HOME/.agents/repos/superpowers" ]] \
-  || git clone git@github.com:obra/superpowers.git "$HOME/.agents/repos/superpowers"
-
-# agentic skills
-[[ -d "$HOME/.agents/repos/agentic" ]] \
-  || git clone --recurse-submodules git@github.com:ronnyf/agentic.git "$HOME/.agents/repos/agentic"
 
 echo "External repos ready."

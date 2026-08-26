@@ -20,9 +20,6 @@ chezmoi edit --apply ~/.zshrc
 # Re-add a file after editing it in-place
 chezmoi add ~/.zshrc
 
-# Re-sync agent skills after git pull in a skills repo
-sync-skills
-
 # Manually clone external repos (if SSH was unavailable at bootstrap)
 chezmoi-clone-repos
 ```
@@ -64,29 +61,12 @@ All scripts live flat in `.chezmoiscripts/`; subdirectories are not scanned.
 | Script | When | What |
 |---|---|---|
 | `run_once_before_00-unstow.sh` | Once | Remove stow symlinks (migration) |
-| `run_once_before_install-external-repos.sh` | Once | Clone neovim, TPM, superpowers, agentic |
+| `run_once_before_install-external-repos.sh` | Once | Clone neovim, TPM |
 | `run_onchange_before_install-homebrew-bundle.sh.tmpl` | Brewfile changes | `brew bundle install` |
 | `run_onchange_before_install-packages.sh.tmpl` | packages.txt changes | `paru -S` |
 | `run_onchange_after_set-macos-defaults.sh` | Script changes | Keyboard, Finder, Dock, screenshot defaults |
 | `run_onchange_after_disable-macos-animations.sh` | Script changes | Disable macOS UI animations |
 | `run_onchange_after_init-macos-machine.sh.tmpl` | Script changes | Set hostname from `machineName` |
-| `run_onchange_after_sync-agent-skills.sh` | Script changes / manual | Create `~/.agents/` symlinks |
-
-### Agent skills
-
-Canonical location: `~/.agents/skills/`, symlinked to by OpenCode
-(`~/.config/opencode/{skills,agents,commands}`).
-
-Claude Code no longer symlinks here — it loads the agentic skills from the plugin instead.
-`~/.claude/skills` pointing at this dir made Claude Code register every agentic skill twice,
-bare and `agentic:`-namespaced, from two clones with divergent bodies.
-
-Skills come from two external repos (cloned by `run_once_before_install-external-repos.sh`):
-- `~/.agents/repos/superpowers/` — upstream skills
-- `~/.agents/repos/agentic/` — personal fork (wins on name collision)
-
-After `git pull` in either repo, run `sync-skills` to update symlinks.
-
 ### Day-to-day sync
 
 ```bash
