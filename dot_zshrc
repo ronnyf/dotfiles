@@ -68,7 +68,7 @@ else
     [[ -f /usr/share/zsh-antidote/antidote.zsh ]] \
         && source /usr/share/zsh-antidote/antidote.zsh
 fi
-antidote load
+command -v antidote >/dev/null && antidote load "$HOME/.zsh_plugins.txt"
 
 source <(zoxide init zsh)
 [[ -x ~/.tmux/plugins/tmuxifier/bin/tmuxifier ]] && source <(~/.tmux/plugins/tmuxifier/bin/tmuxifier init -)

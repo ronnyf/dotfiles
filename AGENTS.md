@@ -46,11 +46,13 @@ Chezmoi copies tracked files to `$HOME` as real files (no symlinks for config).
 # macOS
 brew install chezmoi
 git clone https://github.com/ronnyf/dotfiles.git ~/.dotfiles
+chezmoi init --source ~/.dotfiles
 chezmoi apply --source ~/.dotfiles
 
 # Linux (CachyOS/Arch)
 sudo pacman -S chezmoi git
 git clone https://github.com/ronnyf/dotfiles.git ~/.dotfiles
+chezmoi init --source ~/.dotfiles
 chezmoi apply --source ~/.dotfiles
 ```
 
