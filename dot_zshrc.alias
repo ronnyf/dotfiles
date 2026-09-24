@@ -34,3 +34,6 @@ alias ls='ls -G'
 alias lsa='ls -lah'
 alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'
 alias chezmoi-clone-repos='bash ~/.dotfiles/.chezmoiscripts/run_once_before_install-external-repos.sh'
+alias oc='LLM_HOST="http://127.0.0.1:8000/v1" LLM_API_KEY="omlx-1tfxcs4703mqey8t" opencode'
+alias oc2='LLM_HOST="http://192.168.68.61:8000/v1" LLM_API_KEY="omlx-1tfxcs4703mqey8t" opencode
+
