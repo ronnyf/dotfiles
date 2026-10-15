@@ -1,72 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "llmstudio": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "localAI(MacBook)",
-      "options": {
-        "baseURL": "${LLM_HOST}",
-        "apiKey": "${LLM_API_KEY}"
+  "providers": {
+    "lmstudio": {
+      "settings": {
+        "baseURL": "{env:LLM_HOST}",
+        "apiKey": "{env:LLM_API_KEY}",
       },
-      "models": {
-        "lmstudio-community/gemma-4-31b-it-MLX-8bit": {
-          "name": "Gemma-4-31B-8Bit",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "mlx-community/gemma-4-31b-bf16": {
-          "name": "Gemma-4-31B-BF16",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "peculiar-ragdoll/Dagger-Qwen3.6-27B-MLX": {
-          "name": "Qwen3.6-27B (Dagger)",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "peculiar-ragdoll/Nail-Qwen3.6-35B-A3B-MLX": {
-          "name": "Qwen3.6-35B-A3B (Nail)",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "qwen/qwen3-coder-next": {
-          "name": "Qwen-Coder-Next",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "lmstudio-community/Qwen3.8-27B-MLX-8bit": {
-          "name": "Qwen3.8-27B-8Bit",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "mlx-community/Qwen3.8-27B-bf16": {
-          "name": "Qwen3.8-27B-BF16",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        },
-        "incoai/Qwen3.8-27B-Splash": {
-          "name": "Qwen3.8-27B-Splash",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          }
-        }
-      }
-    }
+    },
   },
   "plugin": [
     "oh-my-opencode-slim",
