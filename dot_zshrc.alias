@@ -32,7 +32,12 @@ alias la='ls -lAh'
 alias ll='ls -lh'
 alias ls='ls -G'
 alias lsa='ls -lah'
-alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'
+alias gfa='git fetch --all --prune'
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'
+else
+  alias updatecli='sudo pacman -Suy'
+fi
 alias chezmoi-clone-repos='bash ~/.dotfiles/.chezmoiscripts/run_once_before_install-external-repos.sh'
 alias oc='LLM_HOST="127.0.0.1:8000" LLM_API_KEY="sk-lm-66uNslrk:nMLs7g3u7ZMD6nd8yPi7" opencode --standalone'
 alias oc2='LLM_HOST="192.168.68.61:8000" LLM_API_KEY="sk-lm-CS3y0LRZ:Jn7YXjwMyVXDRKCFE5S8" opencode --standalone'
