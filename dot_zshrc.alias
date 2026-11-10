@@ -34,7 +34,7 @@ alias ls='ls -G'
 alias lsa='ls -lah'
 alias gfa='git fetch --all --prune'
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g'
+  alias updatecli='brew update && brew upgrade && brew autoremove && npm update -g && /usr/bin/curl https://artifacts.apple.com/sdp/g/liv/liv-%5BRELEASE%5D.macos -o /tmp/liv && chmod +x /tmp/liv && /tmp/liv clt'
 else
   alias updatecli='sudo pacman -Suy'
 fi
